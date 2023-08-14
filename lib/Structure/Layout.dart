@@ -1,0 +1,4 @@
+enum Layout{
+  GRID,
+  LIST
+}
