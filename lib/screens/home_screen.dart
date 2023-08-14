@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../Structure/InputFieldHandler.dart';
 import '../Structure/Layout.dart';
 import '../constants.dart';
+import 'CustomWidgets/DocumentView.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -47,18 +48,19 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               children: [
                 SingleChildScrollView(
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      Text(
-                        "Some Large Large Text",
-                        style: TextStyle(fontSize: 100),
-                      ),
-                      Text(
-                        "Some Large Large Text",
-                        style: TextStyle(fontSize: 100),
-                      ),
-                    ],
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text("Today"),
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          child: DocumentView(),
+                        ),
+                        Text("Yesterday"),
+                      ],
+                    ),
                   ),
                 ),
               ],
