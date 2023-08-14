@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final materialScannerTheme = ScannerTheme();
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: "Material Scanner",
       theme: materialScannerTheme.lightTheme(),
       darkTheme: materialScannerTheme.darkTheme(),
