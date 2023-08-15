@@ -1,7 +1,8 @@
+import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flutter/material.dart';
-
 import '../Structure/InputFieldHandler.dart';
-import '../Structure/Layout.dart';
+import '../Structure/layout.dart';
+import '../Structure/Utils.dart';
 import '../constants.dart';
 import 'CustomWidgets/DocumentView.dart';
 
@@ -19,12 +20,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> list = [];
+    for (int i = 0; i < 10; i++) {
+      list.add(
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.0),
+          child: DocumentView(),
+        ),
+      );
+    }
     return Scaffold(
       floatingActionButton: buildFloatingActionButton(),
       bottomNavigationBar: buildBottomNavigationBar(),
+      /*Using Custom Scroll View to implement Sliver App Bar
+      * As the application design contains a search bar at top along
+      * with custom toggle switch for layout management*/
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
+            //A sliver app bar with a title and just one trailing icon to create a new folder
             centerTitle: false,
             titleSpacing: 16,
             pinned: true,
@@ -33,10 +47,13 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             floating: true,
+            //Following action widget is used to create new folder
             actions: _buildAppBarTrailingIcon(),
             expandedHeight: 115,
+            //The sliver app bar contains the Searchbar and custom toggle switch
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
+                // Aligning the search bar + toggle switch to bottom
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
@@ -44,21 +61,23 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Column(
               children: [
                 SingleChildScrollView(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text("Today"),
-                        Padding(
+                        const Text("Today"),
+                        const Padding(
                           padding: EdgeInsets.symmetric(vertical: 8.0),
                           child: DocumentView(),
                         ),
-                        Text("Yesterday"),
+                        const Text("Yesterday"),
+                        ...list,
                       ],
                     ),
                   ),
@@ -191,7 +210,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return FloatingActionButton(
       tooltip: "Scan Document",
       child: const Icon(Icons.camera_alt_outlined),
-      onPressed: () {},
+      onPressed: () async {
+        try {
+          final scannedImages = await CunningDocumentScanner.getPictures();
+          if(scannedImages!=null){
+            print(scannedImages);
+          }
+        } catch (exception) {
+          Utils.showErrorMessage(context, exception.toString());
+        }
+      },
     );
   }
 
