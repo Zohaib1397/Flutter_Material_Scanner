@@ -1,5 +1,7 @@
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flutter/material.dart';
+import 'package:material_scanner/Structure/picture.dart';
+import '../Structure/document.dart';
 import '../Structure/InputFieldHandler.dart';
 import '../Structure/layout.dart';
 import '../Structure/Utils.dart';
@@ -18,17 +20,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _searchField = InputFieldHandler();
 
+  List<Widget> list = [];
+
+
   @override
   Widget build(BuildContext context) {
-    List<Widget> list = [];
-    for (int i = 0; i < 10; i++) {
-      list.add(
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.0),
-          child: DocumentView(),
-        ),
-      );
-    }
     return Scaffold(
       floatingActionButton: buildFloatingActionButton(),
       bottomNavigationBar: buildBottomNavigationBar(),
@@ -214,6 +210,20 @@ class _HomeScreenState extends State<HomeScreen> {
         try {
           final scannedImages = await CunningDocumentScanner.getPictures();
           if(scannedImages!=null){
+            for(var image in scannedImages){
+              Document newDoc = Document(Picture(image, "New Image", DateTime.now()), DateTime.now(), Picture(image, "New Image", DateTime.now()));
+              setState(() {
+                list.add(
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: DocumentView(
+                      document: newDoc,
+                    ),
+                  ),
+                );
+              });
+
+            }
             print(scannedImages);
           }
         } catch (exception) {

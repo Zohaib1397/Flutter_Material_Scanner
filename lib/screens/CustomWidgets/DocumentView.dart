@@ -1,7 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import '../../Structure/document.dart';
 
 class DocumentView extends StatelessWidget {
-  const DocumentView({super.key});
+  const DocumentView({super.key, this.document});
+
+  final Document? document;
+  static const listImageSize = 56.0;
 
   @override
   Widget build(BuildContext context) {
@@ -11,14 +17,15 @@ class DocumentView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Row(
+          Row(
             children: [
-              Image(image: NetworkImage("https://picsum.photos/600"),height: 56, width: 56,),
+              document!=null? Image.file(File(document!.picture.uri),height: listImageSize, width: listImageSize,):
+              const Image(image: NetworkImage("https://picsum.photos/600"),height: listImageSize, width: listImageSize,),
               SizedBox(width: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("IMG_3341", style: TextStyle(fontWeight: FontWeight.bold),),
+                  Text(document?.picture.name?? "IMG_3341", style: const TextStyle(fontWeight: FontWeight.bold),),
                   Text("Photo"),
                   Text("Added: 13th August, 2023"),
                 ],
