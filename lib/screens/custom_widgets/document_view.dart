@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import '../../Structure/document.dart';
+import '../../model/document.dart';
 
 class DocumentView extends StatelessWidget {
   const DocumentView({super.key, this.document});

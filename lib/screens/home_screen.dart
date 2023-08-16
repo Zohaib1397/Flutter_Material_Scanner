@@ -1,12 +1,12 @@
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flutter/material.dart';
-import 'package:material_scanner/Structure/picture.dart';
-import '../Structure/document.dart';
-import '../Structure/InputFieldHandler.dart';
-import '../Structure/layout.dart';
-import '../Structure/Utils.dart';
-import '../constants.dart';
-import 'CustomWidgets/DocumentView.dart';
+import '../model/picture.dart';
+import '../model/document.dart';
+import '../model/InputFieldHandler.dart';
+import '../model/layout.dart';
+import '../utils/utils.dart';
+import '../utils/constants.dart';
+import 'custom_widgets/document_view.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -33,30 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
       * with custom toggle switch for layout management*/
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            //A sliver app bar with a title and just one trailing icon to create a new folder
-            centerTitle: false,
-            titleSpacing: 16,
-            pinned: true,
-            title: const Text(
-              "Your Documents",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            floating: true,
-            //Following action widget is used to create new folder
-            actions: _buildAppBarTrailingIcon(),
-            expandedHeight: 115,
-            //The sliver app bar contains the Searchbar and custom toggle switch
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                // Aligning the search bar + toggle switch to bottom
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: _buildSearchBarAndFilter()),
-              ),
-            ),
-          ),
+          buildSliverAppBar(),
           SliverToBoxAdapter(
             child: Column(
               children: [
@@ -84,6 +61,33 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  SliverAppBar buildSliverAppBar() {
+    return SliverAppBar(
+          //A sliver app bar with a title and just one trailing icon to create a new folder
+          centerTitle: false,
+          titleSpacing: 16,
+          pinned: true,
+          title: const Text(
+            "Your Documents",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          floating: true,
+          //Following action widget is used to create new folder
+          actions: _buildAppBarTrailingIcon(),
+          expandedHeight: 115,
+          //The sliver app bar contains the Searchbar and custom toggle switch
+          flexibleSpace: FlexibleSpaceBar(
+            background: Container(
+              // Aligning the search bar + toggle switch to bottom
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: _buildSearchBarAndFilter()),
+            ),
+          ),
+        );
   }
 
   Padding _buildSearchBarAndFilter() {
@@ -211,7 +215,7 @@ class _HomeScreenState extends State<HomeScreen> {
           final scannedImages = await CunningDocumentScanner.getPictures();
           if(scannedImages!=null){
             for(var image in scannedImages){
-              Document newDoc = Document(Picture(image, "New Image", DateTime.now()), DateTime.now(), Picture(image, "New Image", DateTime.now()));
+              Document newDoc = Document(Picture(image, "New Image", DateTime.now()), DateTime.now());
               setState(() {
                 list.add(
                   Padding(

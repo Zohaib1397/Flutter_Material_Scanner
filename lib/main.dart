@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
-import '/Theme/ScannerTheme.dart';
+import '/Theme/scanner_theme.dart';
 import 'package:material_scanner/screens/home_screen.dart';
+import 'package:provider/provider.dart';
+import 'viewModel/image_view_model.dart';
 
 void main(){
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ImageViewModel()),
+      ],
+      child: const MyApp(),
+    )
+  );
 }
 
 
