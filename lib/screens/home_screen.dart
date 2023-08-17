@@ -1,12 +1,17 @@
-import 'package:cunning_document_scanner/cunning_document_scanner.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import '../model/picture.dart';
-import '../model/document.dart';
+import 'package:material_scanner/utils/save_image_path.dart';
+import 'package:provider/provider.dart';
 import '../model/InputFieldHandler.dart';
+import '../model/document.dart';
 import '../model/layout.dart';
-import '../utils/utils.dart';
 import '../utils/constants.dart';
+import '../utils/utils.dart';
+import '../viewModel/image_view_model.dart';
 import 'custom_widgets/document_view.dart';
+import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,8 +25,25 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _searchField = InputFieldHandler();
 
-  List<Widget> list = [];
+  // Future<void> addImagesToList() async {
+  //   List<Document> documents =
+  //       Provider.of<ImageViewModel>(context, listen: false).documentList;
+  //   for (var newDoc in documents) {
+  //     list.add(
+  //       Padding(
+  //         padding: const EdgeInsets.symmetric(vertical: 8.0),
+  //         child: DocumentView(
+  //           document: newDoc,
+  //         ),
+  //       ),
+  //     );
+  //   }
+  // }
 
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +61,8 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 SingleChildScrollView(
                   child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 8.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -50,7 +72,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: DocumentView(),
                         ),
                         const Text("Yesterday"),
-                        ...list,
+                        Consumer<ImageViewModel>(
+                            builder: (context, imageController, _) {
+                          List<Document> list = [];
+                          list = imageController.documentList;
+                          List<Widget> widgetTree = [];
+                          widgetTree = list
+                              .map((element) =>
+                                  _buildDismissibleDocument(element))
+                              .toList();
+                          return Column(
+                            children: widgetTree,
+                          );
+                        }),
+                        // ...list,
                       ],
                     ),
                   ),
@@ -63,31 +98,74 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildDismissibleDocument(Document element) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Dismissible(
+            onDismissed: (direction) {
+              if (direction == DismissDirection.endToStart) {
+                // setState(() =>
+                //     Provider.of<TaskControllerProvider>(context, listen: false)
+                //         .removeTaskFromList(task));
+              }
+              // else if (direction == DismissDirection.startToEnd) {
+              //   task.isCompleted = true;
+              // }
+            },
+            key: ObjectKey(element),
+            direction: DismissDirection.endToStart,
+            background: buildSwipingContainer(
+                Colors.red, "Delete", Icons.delete, Alignment.centerRight),
+            // background: buildSwipingContainer(
+            //     Colors.green, "Done", Icons.check_circle, Alignment.centerLeft),
+            child: DocumentView(document:  element),
+          ),
+        ),
+      );
+
+  Widget buildSwipingContainer(
+      Color color, String text, IconData icon, Alignment alignment) =>
+      Container(
+        color: color,
+        alignment: alignment,
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: Colors.white),
+              Text(text, style: const TextStyle(color: Colors.white)),
+            ],
+          ),
+        ),
+      );
+
   SliverAppBar buildSliverAppBar() {
     return SliverAppBar(
-          //A sliver app bar with a title and just one trailing icon to create a new folder
-          centerTitle: false,
-          titleSpacing: 16,
-          pinned: true,
-          title: const Text(
-            "Your Documents",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          floating: true,
-          //Following action widget is used to create new folder
-          actions: _buildAppBarTrailingIcon(),
-          expandedHeight: 115,
-          //The sliver app bar contains the Searchbar and custom toggle switch
-          flexibleSpace: FlexibleSpaceBar(
-            background: Container(
-              // Aligning the search bar + toggle switch to bottom
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: _buildSearchBarAndFilter()),
-            ),
-          ),
-        );
+      //A sliver app bar with a title and just one trailing icon to create a new folder
+      centerTitle: false,
+      titleSpacing: 16,
+      pinned: true,
+      title: const Text(
+        "Your Documents",
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      floating: true,
+      //Following action widget is used to create new folder
+      actions: _buildAppBarTrailingIcon(),
+      expandedHeight: 115,
+      //The sliver app bar contains the Searchbar and custom toggle switch
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          // Aligning the search bar + toggle switch to bottom
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: _buildSearchBarAndFilter()),
+        ),
+      ),
+    );
   }
 
   Padding _buildSearchBarAndFilter() {
@@ -213,20 +291,15 @@ class _HomeScreenState extends State<HomeScreen> {
       onPressed: () async {
         try {
           final scannedImages = await CunningDocumentScanner.getPictures();
-          if(scannedImages!=null){
-            for(var image in scannedImages){
-              Document newDoc = Document(Picture(image, "New Image", DateTime.now()), DateTime.now());
-              setState(() {
-                list.add(
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: DocumentView(
-                      document: newDoc,
-                    ),
-                  ),
-                );
-              });
-
+          if (scannedImages != null) {
+            for (var image in scannedImages) {
+              String uri = await SaveImagePath.saveImageFromPath(image);
+              Document newDoc = Document(
+                  uri: uri,
+                  name: "New Image",
+                  timeStamp: DateTime.now().toIso8601String());
+              Provider.of<ImageViewModel>(context, listen: false)
+                  .addDocument(newDoc);
             }
             print(scannedImages);
           }
@@ -245,7 +318,11 @@ class _HomeScreenState extends State<HomeScreen> {
           margin: EdgeInsets.zero,
           child: IconButton.filledTonal(
             icon: const Icon(Icons.create_new_folder_outlined),
-            onPressed: () {},
+            onPressed: () {
+              setState(() {
+                // addImagesToList();
+              });
+            },
           ),
         ),
       ),
