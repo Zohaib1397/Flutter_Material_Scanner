@@ -1,7 +1,7 @@
 import 'package:uuid/uuid.dart';
 
 class Document{
-  late String? id;
+  String? id;
   late String uri;
   late String name;
   late String timeStamp;

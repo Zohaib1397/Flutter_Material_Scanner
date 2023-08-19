@@ -1,63 +1,79 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
-
 import '../model/document.dart';
 
-class DatabaseHelper{
-  late Database? database;
-  static const int _version = 1;
-  static const String databaseName = "Scanner.db";
+class DatabaseHelper {
+  static final DatabaseHelper instance = DatabaseHelper._init();
+  static Database? _database;
 
+  DatabaseHelper._init();
 
-  static Future<Database> _getDatabase() async{
-    print("Connecting to database");
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+
+    _database = await _initDB('Scanner.db');
+    return _database!;
+  }
+
+  Future<Database> _initDB(String databaseName) {
+    print("Connecting to Database");
     return openDatabase(
-    join(await getDatabasesPath(), databaseName),
-    version: _version,
-    onCreate: (db, version) => db.execute("CREATE TABLE Document ("
-        "id varchar(255), "
-        "uri varchar(255), "
-        "name varchar(255), "
-        "timeStamp varchar(255)"
-        ");"),
+      databaseName, version: _version, onCreate: (db, version) =>
+        db.execute("CREATE TABLE Document ("
+            "id varchar(255), "
+            "uri varchar(255), "
+            "name varchar(255), "
+            "timeStamp varchar(255)"
+            ");"),
     );
   }
 
-  Future<Database> _initState() async => database = await _getDatabase();
-
-  DatabaseHelper(){
-    print("database file created");
-    _initState();
-  }
+  static const int _version = 1;
 
   Future<int> insert(Document document) async {
-    try{
-      Database db = await _getDatabase();
-      if(db!=null){
-        return await database!.insert('Document', document.toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
-      }else{
-        throw DatabaseException;
+    try {
+      Database db = await instance.database;
+        return await db.insert('Document', document.toJson(),
+            conflictAlgorithm: ConflictAlgorithm.replace);
+    } catch (e) {
+      print(e.toString());
+      return 0;
+    }
+  }
+
+  Future<List<Document>> getAll() async {
+    try {
+      Database db = await instance.database;
+      final List<Map<String, dynamic>> maps = await db.query("Document");
+      if (maps.isEmpty) {
+        print("Database list is empty");
+        return [];
       }
+      print("Returning the list of documents");
+      return List.generate(
+          maps.length, (index) => Document.fromJson(maps[index]));
+    } catch (e) {
+      print(e.toString());
+      return [];
+    }
+  }
+
+  Future<int> delete(Document document) async{
+    try{
+      Database db = await instance.database;
+      return await db.delete('Document',where: "id = ?", whereArgs: [document.id]);
     }catch(e){
       print(e.toString());
       return 0;
     }
   }
 
-  Future<List<Document>> getAll() async{
+  Future<int> update(Document document) async{
     try{
-      Database db = await _getDatabase();
-      final List<Map<String,dynamic>> maps = await database!.query("Document");
-      if(maps.isEmpty){
-        print("I am empty");
-        return [];
-      }
-      print("Returning the list of documents");
-      return List.generate(maps.length, (index) => Document.fromJson(maps[index]));
-      return [];
+      Database db = await instance.database;
+      return await db.update('Document', document.toJson(), where: "id = ?", whereArgs: [document.id]);
     }catch(e){
       print(e.toString());
-      return [];
+      return 0;
     }
   }
 

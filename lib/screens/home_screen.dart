@@ -25,21 +25,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _searchField = InputFieldHandler();
 
-  // Future<void> addImagesToList() async {
-  //   List<Document> documents =
-  //       Provider.of<ImageViewModel>(context, listen: false).documentList;
-  //   for (var newDoc in documents) {
-  //     list.add(
-  //       Padding(
-  //         padding: const EdgeInsets.symmetric(vertical: 8.0),
-  //         child: DocumentView(
-  //           document: newDoc,
-  //         ),
-  //       ),
-  //     );
-  //   }
-  // }
-
   @override
   void initState() {
     super.initState();
@@ -66,26 +51,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Text("Today"),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                          child: DocumentView(),
-                        ),
-                        const Text("Yesterday"),
+                        const DocumentView(),
                         Consumer<ImageViewModel>(
-                            builder: (context, imageController, _) {
-                          List<Document> list = [];
-                          list = imageController.documentList;
-                          List<Widget> widgetTree = [];
-                          widgetTree = list
-                              .map((element) =>
-                                  _buildDismissibleDocument(element))
-                              .toList();
-                          return Column(
-                            children: widgetTree,
-                          );
-                        }),
-                        // ...list,
+                          builder: (context, imageController, _) {
+                            List<Document> documentList = [];
+                            documentList = imageController.documentList;
+                            List<Widget> widgetTree = [];
+                            widgetTree = documentList
+                                .map((element) =>
+                                    _buildDismissibleDocument(element))
+                                .toList();
+                            return Column(
+                              children: widgetTree,
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -105,13 +85,10 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Dismissible(
             onDismissed: (direction) {
               if (direction == DismissDirection.endToStart) {
-                // setState(() =>
-                //     Provider.of<TaskControllerProvider>(context, listen: false)
-                //         .removeTaskFromList(task));
+                Provider.of<ImageViewModel>(context, listen: false)
+                    .deleteDocument(element);
+                setState(() {});
               }
-              // else if (direction == DismissDirection.startToEnd) {
-              //   task.isCompleted = true;
-              // }
             },
             key: ObjectKey(element),
             direction: DismissDirection.endToStart,
@@ -119,13 +96,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 Colors.red, "Delete", Icons.delete, Alignment.centerRight),
             // background: buildSwipingContainer(
             //     Colors.green, "Done", Icons.check_circle, Alignment.centerLeft),
-            child: DocumentView(document:  element),
+            child: DocumentView(document: element),
           ),
         ),
       );
 
   Widget buildSwipingContainer(
-      Color color, String text, IconData icon, Alignment alignment) =>
+          Color color, String text, IconData icon, Alignment alignment) =>
       Container(
         color: color,
         alignment: alignment,

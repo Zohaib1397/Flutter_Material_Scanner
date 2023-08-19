@@ -8,7 +8,7 @@ class ImageViewModel extends ChangeNotifier{
   late DatabaseHelper dbHelper;
 
   ImageViewModel(){
-    dbHelper = DatabaseHelper();
+    dbHelper = DatabaseHelper.instance;
     loadDocuments();
     notifyListeners();
   }
@@ -29,6 +29,18 @@ class ImageViewModel extends ChangeNotifier{
   Future<void> loadDocuments() async {
     documentList = await dbHelper.getAll();
     notifyListeners();
+  }
+
+  Future<bool> deleteDocument(Document document) async{
+    try{
+      documentList.remove(document);
+      print("Deletion Status: ${await dbHelper.delete(document)}");
+      notifyListeners();
+      return true;
+    }catch(e){
+      print(e.toString());
+      return false;
+    }
   }
 
 
