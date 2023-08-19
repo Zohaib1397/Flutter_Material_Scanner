@@ -90,8 +90,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 setState(() {});
               }
             },
-            key: ObjectKey(element),
             direction: DismissDirection.none,
+            key: ObjectKey(element),
             background: buildSwipingContainer(
                 Colors.red, "Delete", Icons.delete, Alignment.centerRight),
             // background: buildSwipingContainer(
