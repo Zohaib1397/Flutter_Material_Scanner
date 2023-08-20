@@ -1,17 +1,12 @@
-import 'package:uuid/uuid.dart';
 
 class Document{
-  String? id;
+  late int id;
   late String uri;
   late String name;
   late String timeStamp;
 
 
-  Document({this.id ,required this.uri, required this.name, required this.timeStamp}){
-    //Uuid package is used to always generate random and unique id for document
-     var temp= const Uuid();
-     id = temp.v4();
-  }
+  Document({required this.id ,required this.uri, required this.name, required this.timeStamp});
 
   factory Document.fromJson(Map<String, dynamic> json) => Document(
     id: json['id'],
@@ -20,10 +15,17 @@ class Document{
     timeStamp: json['timeStamp']
   );
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'uri': uri,
-        'name': name,
-        'timeStamp': timeStamp
-      };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {
+      'uri': uri,
+      'name': name,
+      'timeStamp': timeStamp,
+    };
+
+    if (id != 0) {
+      data['id'] = id;
+    }
+
+    return data;
+  }
 }

@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
-class SaveImagePath{
+class ImageProperties{
   static Future<String> saveImageFromPath(String imagePath) async{
     try{
       //Get application path using path_provider plugin
@@ -26,6 +26,14 @@ class SaveImagePath{
     }catch(e){
       print("Something went wrong: ${e.toString()}");
       return "";
+    }
+  }
+  static Future<String> getName(String imagePath) async{
+    try{
+      return basename(imagePath);
+    }catch(e){
+      print(e.toString());
+      return "Null";
     }
   }
 }

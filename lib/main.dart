@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:material_scanner/screens/view_image.dart';
 import '/Theme/scanner_theme.dart';
 import 'package:material_scanner/screens/home_screen.dart';
 import 'package:provider/provider.dart';
 import 'viewModel/image_view_model.dart';
+import '../model/document.dart';
 
 void main(){
   runApp(

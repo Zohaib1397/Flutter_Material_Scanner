@@ -19,7 +19,7 @@ class DatabaseHelper {
     return openDatabase(
       databaseName, version: _version, onCreate: (db, version) =>
         db.execute("CREATE TABLE Document ("
-            "id varchar(255), "
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
             "uri varchar(255), "
             "name varchar(255), "
             "timeStamp varchar(255)"
@@ -60,6 +60,7 @@ class DatabaseHelper {
   Future<int> delete(Document document) async{
     try{
       Database db = await instance.database;
+      print(document.id);
       return await db.delete('Document',where: "id = ?", whereArgs: [document.id]);
     }catch(e){
       print(e.toString());

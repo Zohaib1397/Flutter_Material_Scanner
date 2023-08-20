@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:material_scanner/utils/save_image_path.dart';
 import 'package:provider/provider.dart';
@@ -46,8 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -78,28 +75,22 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildDismissibleDocument(Document element) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Dismissible(
-            onDismissed: (direction) {
-              if (direction == DismissDirection.endToStart) {
-                Provider.of<ImageViewModel>(context, listen: false)
-                    .deleteDocument(element);
-                setState(() {});
-              }
-            },
-            direction: DismissDirection.none,
-            key: ObjectKey(element),
-            background: buildSwipingContainer(
-                Colors.red, "Delete", Icons.delete, Alignment.centerRight),
-            // background: buildSwipingContainer(
-            //     Colors.green, "Done", Icons.check_circle, Alignment.centerLeft),
-            child: DocumentView(document: element),
-          ),
-        ),
-      );
+  Widget _buildDismissibleDocument(Document element) => Dismissible(
+    onDismissed: (direction) {
+      if (direction == DismissDirection.endToStart) {
+        Provider.of<ImageViewModel>(context, listen: false)
+            .deleteDocument(element);
+        setState(() {});
+      }
+    },
+    direction: DismissDirection.endToStart,
+    key: ObjectKey(element),
+    background: buildSwipingContainer(
+        Colors.red, "Delete", Icons.delete, Alignment.centerRight),
+    // background: buildSwipingContainer(
+    //     Colors.green, "Done", Icons.check_circle, Alignment.centerLeft),
+    child: DocumentView(document: element),
+  );
 
   Widget buildSwipingContainer(
           Color color, String text, IconData icon, Alignment alignment) =>
@@ -146,13 +137,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Padding _buildSearchBarAndFilter() {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            flex: 3,
+          Flexible(
+            flex: screenWidth > 600 ? 8: 3,
             child: Container(
               constraints: const BoxConstraints(maxHeight: 46),
               child: TextField(
@@ -174,8 +166,8 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(
             width: 16,
           ),
-          Expanded(
-            flex: 1,
+          Flexible(
+            flex: screenWidth > 600? 1: 1,
             child: _buildCustomFilterSwitcher(),
           ),
         ],
@@ -270,11 +262,16 @@ class _HomeScreenState extends State<HomeScreen> {
           final scannedImages = await CunningDocumentScanner.getPictures();
           if (scannedImages != null) {
             for (var image in scannedImages) {
-              String uri = await SaveImagePath.saveImageFromPath(image);
+              File file = File(image);
+              final modifiedDate = await file.lastModified();
+              print(modifiedDate.toIso8601String());
+              String uri = await ImageProperties.saveImageFromPath(image);
+              final name = await ImageProperties.getName(image);
               Document newDoc = Document(
+                  id: 0,
                   uri: uri,
-                  name: "New Image",
-                  timeStamp: DateTime.now().toIso8601String());
+                  name: name,
+                  timeStamp: modifiedDate.toIso8601String());
               Provider.of<ImageViewModel>(context, listen: false)
                   .addDocument(newDoc);
             }

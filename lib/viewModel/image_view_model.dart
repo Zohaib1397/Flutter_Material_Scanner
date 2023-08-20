@@ -20,8 +20,8 @@ class ImageViewModel extends ChangeNotifier{
   }
 
   Future<bool> addDocument(Document document)async{
-    documentList.add(document);
     await dbHelper.insert(document);
+    await loadDocuments();
     notifyListeners();
     return true;
   }
