@@ -15,15 +15,18 @@ class DocumentView extends StatefulWidget {
 }
 
 class _DocumentViewState extends State<DocumentView> {
+
+
   @override
   Widget build(BuildContext context) {
+    final image = File(widget.document!.uri);
     return ListTile(
       onTap: (){
         Navigator.push(context, MaterialPageRoute(builder: (_) => ViewImage(document: widget.document)));
       },
       leading: widget.document != null
           ? Image.file(
-              File(widget.document!.uri),
+              image,
               height: DocumentView.listImageSize,
               width: DocumentView.listImageSize,
             )
@@ -33,7 +36,7 @@ class _DocumentViewState extends State<DocumentView> {
               width: DocumentView.listImageSize,
             ),//1ca5204f-896f-44ad-8748-5f9c44bf36bd
       title: Text(
-        widget.document?.id.toString() ?? "IMG_3341",
+        widget.document?.name ?? "IMG_3341",
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
       subtitle: Column(

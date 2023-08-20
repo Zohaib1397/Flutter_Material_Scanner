@@ -1,15 +1,11 @@
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:material_scanner/utils/save_image_path.dart';
+import 'package:flutter/material.dart';import 'package:material_scanner/utils/save_image_path.dart';
 import 'package:provider/provider.dart';
 import '../model/InputFieldHandler.dart';
 import '../model/document.dart';
 import '../model/layout.dart';
 import '../utils/constants.dart';
-import '../utils/utils.dart';
 import '../viewModel/image_view_model.dart';
 import 'custom_widgets/document_view.dart';
-import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

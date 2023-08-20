@@ -22,6 +22,19 @@ class ViewImage extends StatelessWidget {
           width: screenSize.width,
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        elevation: 0,
+        selectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
+        unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
+        onTap: (value){
+          print(value);
+        },
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.share), label: "", tooltip: "Share"),
+          BottomNavigationBarItem(icon: Icon(Icons.save),label: "", tooltip: "Save Image"),
+          BottomNavigationBarItem(icon: Icon(Icons.delete),label: "", tooltip: "Delete"),
+        ],
+      ),
     );
   }
 }
