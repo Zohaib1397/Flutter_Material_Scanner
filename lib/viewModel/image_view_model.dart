@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import '../model/document.dart';
 import '../services/database_helper.dart';
 import '../utils/save_image_path.dart';
@@ -40,6 +41,8 @@ class ImageViewModel extends ChangeNotifier{
     try{
       documentList.remove(document);
       print("Deletion Status: ${await dbHelper.delete(document)}");
+      File file = File(document.uri);
+      await file.delete();
       notifyListeners();
       return true;
     }catch(e){
