@@ -1,6 +1,11 @@
+import 'dart:io';
+
+import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flutter/material.dart';
 import '../model/document.dart';
 import '../services/database_helper.dart';
+import '../utils/save_image_path.dart';
+import '../utils/utils.dart';
 
 class ImageViewModel extends ChangeNotifier{
   bool _loading = false;
@@ -42,6 +47,30 @@ class ImageViewModel extends ChangeNotifier{
       return false;
     }
   }
-
+  Future<bool> performDocumentScan(BuildContext context) async{
+    try {
+      final scannedImages = await CunningDocumentScanner.getPictures();
+      if (scannedImages != null) {
+        for (var image in scannedImages) {
+          File file = File(image);
+          final modifiedDate = await file.lastModified();
+          print(modifiedDate.toIso8601String());
+          String uri = await ImageProperties.saveImageFromPath(image);
+          final name = await ImageProperties.getName(image);
+          Document newDoc = Document(
+              id: 0,
+              uri: uri,
+              name: name,
+              timeStamp: modifiedDate.toIso8601String());
+          addDocument(newDoc);
+        }
+        print(scannedImages);
+      }
+      return true;
+    } catch (exception) {
+      Utils.showErrorMessage(context, exception.toString());
+      return false;
+    }
+  }
 
 }

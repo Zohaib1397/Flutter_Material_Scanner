@@ -40,34 +40,24 @@ class _HomeScreenState extends State<HomeScreen> {
         slivers: [
           buildSliverAppBar(),
           SliverToBoxAdapter(
-            child: Column(
-              children: [
-                SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const DocumentView(),
-                        Consumer<ImageViewModel>(
-                          builder: (context, imageController, _) {
-                            List<Document> documentList = [];
-                            documentList = imageController.documentList;
-                            List<Widget> widgetTree = [];
-                            widgetTree = documentList
-                                .map((element) =>
-                                    _buildDismissibleDocument(element))
-                                .toList();
-                            return Column(
-                              children: widgetTree,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Consumer<ImageViewModel>(
+                    builder: (context, imageController, _) {
+                      List<Document> documentList = imageController.documentList;
+                      List<Widget> widgetTree = documentList
+                          .map((element) =>
+                              _buildDismissibleDocument(element))
+                          .toList();
+                      return Column(
+                        children: widgetTree,
+                      );
+                    },
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -258,28 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
       tooltip: "Scan Document",
       child: const Icon(Icons.camera_alt_outlined),
       onPressed: () async {
-        try {
-          final scannedImages = await CunningDocumentScanner.getPictures();
-          if (scannedImages != null) {
-            for (var image in scannedImages) {
-              File file = File(image);
-              final modifiedDate = await file.lastModified();
-              print(modifiedDate.toIso8601String());
-              String uri = await ImageProperties.saveImageFromPath(image);
-              final name = await ImageProperties.getName(image);
-              Document newDoc = Document(
-                  id: 0,
-                  uri: uri,
-                  name: name,
-                  timeStamp: modifiedDate.toIso8601String());
-              Provider.of<ImageViewModel>(context, listen: false)
-                  .addDocument(newDoc);
-            }
-            print(scannedImages);
-          }
-        } catch (exception) {
-          Utils.showErrorMessage(context, exception.toString());
-        }
+        Provider.of<ImageViewModel>(context, listen: false).performDocumentScan(context);
       },
     );
   }
