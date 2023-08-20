@@ -59,11 +59,10 @@ class ImageViewModel extends ChangeNotifier{
           final modifiedDate = await file.lastModified();
           print(modifiedDate.toIso8601String());
           String uri = await ImageProperties.saveImageFromPath(image);
-          final name = await ImageProperties.getName(image);
           Document newDoc = Document(
               id: 0,
               uri: uri,
-              name: name,
+              name: "IMG_${modifiedDate.year}${modifiedDate.day}${modifiedDate.month}_${modifiedDate.hour}${modifiedDate.minute}${modifiedDate.second}",
               timeStamp: modifiedDate.toIso8601String());
           addDocument(newDoc);
         }

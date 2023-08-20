@@ -1,13 +1,13 @@
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:material_scanner/screens/view_image.dart';
 import '../../model/document.dart';
 
 class DocumentView extends StatefulWidget {
-  const DocumentView({super.key, this.document});
+  const DocumentView({super.key, required this.document});
 
-  final Document? document;
+  final Document document;
   static const listImageSize = 56.0;
 
   @override
@@ -16,34 +16,40 @@ class DocumentView extends StatefulWidget {
 
 class _DocumentViewState extends State<DocumentView> {
 
+  late File file;
+  late DateTime dateTime;
+
+  @override
+  void initState() {
+    super.initState();
+    file = File(widget.document.uri);
+    dateTime = DateTime.parse(widget.document.timeStamp);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final image = File(widget.document!.uri);
     return ListTile(
       onTap: (){
         Navigator.push(context, MaterialPageRoute(builder: (_) => ViewImage(document: widget.document)));
       },
-      leading: widget.document != null
-          ? Image.file(
-              image,
-              height: DocumentView.listImageSize,
-              width: DocumentView.listImageSize,
-            )
-          : const Image(
-              image: NetworkImage("https://picsum.photos/600"),
-              height: DocumentView.listImageSize,
-              width: DocumentView.listImageSize,
-            ),//1ca5204f-896f-44ad-8748-5f9c44bf36bd
+      leading: Hero(
+            tag: "ScannedImage_${widget.document.uri}",
+            child: Image.file(
+                file,
+                height: DocumentView.listImageSize,
+                width: DocumentView.listImageSize,
+              ),
+          ),
+
       title: Text(
-        widget.document?.name ?? "IMG_3341",
+        widget.document.name,
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Photo"),
-          Text("Added: 13th August, 2023"),
+          const Text("Photo"),
+          Text("Added: ${DateFormat.yMMMMd().format(dateTime)}"),
         ],
       ),
       trailing: PopupMenuButton<String>(
