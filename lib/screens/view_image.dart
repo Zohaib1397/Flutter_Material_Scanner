@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 import '../../model/document.dart';
 import 'dart:io';
 import 'package:share_plus/share_plus.dart';
@@ -47,8 +48,11 @@ class _ViewImageState extends State<ViewImage> {
           if(value == 0){
             await Share.shareXFiles([XFile(file.path)]);
           }
+          else if(value == 1){
+            await GallerySaver.saveImage(file.path);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Image Saved Successfully")));
+          }
         },
-
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.share), label: "", tooltip: "Share"),
           BottomNavigationBarItem(icon: Icon(Icons.save),label: "", tooltip: "Save Image"),
