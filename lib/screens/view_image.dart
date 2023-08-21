@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:gallery_saver/gallery_saver.dart';
+import 'package:provider/provider.dart';
 import '../../model/document.dart';
 import 'dart:io';
 import 'package:share_plus/share_plus.dart';
 
+import '../utils/utils.dart';
+import '../viewModel/image_view_model.dart';
+
 class ViewImage extends StatefulWidget {
   const ViewImage({super.key, required this.document});
 
-  final Document? document;
+  final Document document;
   static const String id = "View_Image";
 
   @override
@@ -21,7 +25,7 @@ class _ViewImageState extends State<ViewImage> {
   @override
   void initState() {
     super.initState();
-    file = File(widget.document!.uri);
+    file = File(widget.document.uri);
   }
 
   @override
@@ -29,11 +33,11 @@ class _ViewImageState extends State<ViewImage> {
     final screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.document!.name),
+        title: Text(widget.document.name),
       ),
       body: Center(
         child: Hero(
-          tag: "ScannedImage_${widget.document!.uri}",
+          tag: "ScannedImage_${widget.document.uri}",
           child: Image.file(
             file,
             width: screenSize.width,
@@ -50,7 +54,17 @@ class _ViewImageState extends State<ViewImage> {
           }
           else if(value == 1){
             await GallerySaver.saveImage(file.path);
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Image Saved Successfully")));
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Image Saved Successfully")));
+          }
+          else if(value == 2){
+            Utils.showAlertDialog(context, "Delete Image", "Are you sure you want to delete this image?", "Delete", (){
+              Provider.of<ImageViewModel>(context, listen:false).deleteDocument(widget.document);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Image Deleted Successfully")));
+              //Pop the alert dialogue
+              Navigator.pop(context);
+              //Pop back to previous screen
+              Navigator.pop(context);
+            });
           }
         },
         items: [

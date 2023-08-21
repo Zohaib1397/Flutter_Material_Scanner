@@ -4,6 +4,7 @@ import '../model/InputFieldHandler.dart';
 import '../model/document.dart';
 import '../model/layout.dart';
 import '../utils/constants.dart';
+import '../utils/utils.dart';
 import '../viewModel/image_view_model.dart';
 import 'custom_widgets/document_view.dart';
 
@@ -68,6 +69,9 @@ class _HomeScreenState extends State<HomeScreen> {
             .deleteDocument(element);
         setState(() {});
       }
+    },
+    confirmDismiss: (direction) async {
+      await Utils.showAlertDialog(context, "Delete Image", "Are you sure you want to delete this image?", "Delete", () => true);
     },
     direction: DismissDirection.endToStart,
     key: ObjectKey(element),
