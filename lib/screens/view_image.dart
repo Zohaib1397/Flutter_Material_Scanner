@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../model/document.dart';
 import 'dart:io';
+import 'package:share_plus/share_plus.dart';
 
 class ViewImage extends StatefulWidget {
   const ViewImage({super.key, required this.document});
@@ -42,9 +43,12 @@ class _ViewImageState extends State<ViewImage> {
         elevation: 0,
         selectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
         unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
-        onTap: (value){
-          print(value);
+        onTap: (value) async {
+          if(value == 0){
+            await Share.shareXFiles([XFile(file.path)]);
+          }
         },
+
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.share), label: "", tooltip: "Share"),
           BottomNavigationBarItem(icon: Icon(Icons.save),label: "", tooltip: "Save Image"),

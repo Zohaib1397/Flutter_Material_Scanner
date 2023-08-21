@@ -54,8 +54,10 @@ class _DocumentViewState extends State<DocumentView> {
       ),
       trailing: PopupMenuButton<String>(
         padding: EdgeInsets.zero,
-        onSelected: (value){
-          print(value);
+        onSelected: (value) async {
+          if(value == 0){
+
+          }
         },
         itemBuilder: (context) => <PopupMenuItem<String>>[
           PopupMenuItem(
