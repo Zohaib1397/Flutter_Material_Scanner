@@ -70,9 +70,9 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {});
       }
     },
-    confirmDismiss: (direction) async {
-      await Utils.showAlertDialog(context, "Delete Image", "Are you sure you want to delete this image?", "Delete", () => true);
-    },
+    // confirmDismiss: (direction) async {
+    //   await Utils.showAlertDialog(context, "Delete Image", "Are you sure you want to delete this image?", "Delete", () => true);
+    // },
     direction: DismissDirection.endToStart,
     key: ObjectKey(element),
     background: buildSwipingContainer(

@@ -40,7 +40,6 @@ class _DocumentViewState extends State<DocumentView> {
                 width: DocumentView.listImageSize,
               ),
           ),
-
       title: Text(
         widget.document.name,
         style: const TextStyle(fontWeight: FontWeight.bold),
