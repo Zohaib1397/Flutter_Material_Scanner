@@ -7,11 +7,11 @@ Following are some listed features that are needed to be considered.
 
 ## Feature set
 
-<ul>
+<ol>
  <li>Image Capture:</li>
  <p>Allow users to capture images of documents using their device's camera.
 Provide real-time preview for adjusting document positioning and quality before capturing.</p>
-</ul>
+</ol>
 Image Processing:
 Implement image enhancement techniques to improve the quality of scanned documents (e.g., cropping, rotation, brightness/contrast adjustment).
 Use edge detection algorithms to identify and enhance text and document edges.
