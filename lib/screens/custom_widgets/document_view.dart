@@ -29,9 +29,11 @@ class _DocumentViewState extends State<DocumentView> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       onTap: (){
         Navigator.push(context, MaterialPageRoute(builder: (_) => ViewImage(document: widget.document)));
       },
+
       leading: Hero(
             tag: "ScannedImage_${widget.document.uri}",
             child: Image.file(
@@ -59,9 +61,9 @@ class _DocumentViewState extends State<DocumentView> {
           }
         },
         itemBuilder: (context) => <PopupMenuItem<String>>[
-          PopupMenuItem(
+          const PopupMenuItem(
             padding: EdgeInsets.zero,
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text("Delete"),

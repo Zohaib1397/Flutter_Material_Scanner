@@ -219,19 +219,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  BottomNavigationBar buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      onTap: (value) {},
-      items: const [
-        BottomNavigationBarItem(
+  NavigationBar buildBottomNavigationBar() {
+    return NavigationBar(
+      onDestinationSelected: (value) {},
+      destinations: const [
+        NavigationDestination(
           icon: Icon(Icons.home_outlined),
-          activeIcon: Icon(Icons.home),
+          selectedIcon: Icon(Icons.home_filled),
           label: "Home",
           tooltip: "Home Screen",
         ),
-        BottomNavigationBarItem(
+        NavigationDestination(
             icon: Icon(Icons.image_outlined), label: "Import"),
-        BottomNavigationBarItem(
+        NavigationDestination(
             icon: Icon(Icons.settings_outlined), label: "Settings"),
       ],
     );

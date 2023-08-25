@@ -15,7 +15,7 @@ class EditImageScreen extends StatefulWidget {
 
 class _EditImageScreenState extends State<EditImageScreen> {
   late File file;
-
+  bool filterToggle = false;
   @override
   void initState() {
     super.initState();
@@ -30,7 +30,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(
-          color: Colors.black
+          color: Colors.white
         ),
         actions: [
           IconButton(onPressed: (){}, icon: const Icon(Icons.save)),
@@ -41,6 +41,19 @@ class _EditImageScreenState extends State<EditImageScreen> {
           file,
           width: screenSize.width,
         ),
+      ),
+      bottomNavigationBar: NavigationBar(
+        surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+        onDestinationSelected: (value){
+          if(value == 0){
+
+          }
+        },
+        destinations: [
+          NavigationDestination(icon: Icon(Icons.photo_filter), label: "Filter", tooltip: "Filter Image"),
+          NavigationDestination(icon: Icon(Icons.crop_rotate), label: "Adjust", tooltip: "Crop and Rotate"),
+          NavigationDestination(icon: Icon(Icons.add_reaction_outlined), label: "Emoji", tooltip: "Add Emoji"),
+        ],
       ),
     );
   }

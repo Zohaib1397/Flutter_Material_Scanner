@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gallery_saver/gallery_saver.dart';
+import 'package:material_scanner/screens/edit_image_screen.dart';
 import 'package:provider/provider.dart';
 import '../../model/document.dart';
 import 'dart:io';
@@ -44,12 +45,12 @@ class _ViewImageState extends State<ViewImage> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        elevation: 0,
+        type: BottomNavigationBarType.fixed,
         selectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
         unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
         onTap: (value) async {
           if(value == 0){
-
+            Navigator.push(context, MaterialPageRoute(builder: (_) => EditImageScreen(document: widget.document)));
           }
           else if(value == 1){
             await Share.shareXFiles([XFile(file.path)]);
@@ -66,7 +67,7 @@ class _ViewImageState extends State<ViewImage> {
             });
           }
         },
-        items: [
+        items: const [
           BottomNavigationBarItem(icon: Icon(Icons.edit), label: "Edit", tooltip: "Edit Image"),
           BottomNavigationBarItem(icon: Icon(Icons.share), label: "Share", tooltip: "Share"),
           BottomNavigationBarItem(icon: Icon(Icons.save),label: "Save", tooltip: "Save Image"),
