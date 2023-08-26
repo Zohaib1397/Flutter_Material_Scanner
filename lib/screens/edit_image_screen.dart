@@ -51,24 +51,26 @@ class _EditImageScreenState extends State<EditImageScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              child: Center(
-                child: filterToggle
-                    ? PageView.builder(
-                        controller: controller,
-                        itemCount: colorFilters.length,
-                        itemBuilder: (context, index) => ColorFiltered(
-                          colorFilter: ColorFilter.matrix(colorFilters[index]),
+              child: RepaintBoundary(
+                child: Center(
+                  child: filterToggle
+                      ? PageView.builder(
+                          controller: controller,
+                          itemCount: colorFilters.length,
+                          itemBuilder: (context, index) => ColorFiltered(
+                            colorFilter: ColorFilter.matrix(colorFilters[index]),
+                            child: Image.file(
+                                  file,
+                                  width: screenSize.width,
+                                ),
+                          ))
+                      : PhotoView.customChild(
                           child: Image.file(
-                                file,
-                                width: screenSize.width,
-                              ),
-                        ))
-                    : PhotoView.customChild(
-                        child: Image.file(
-                          file,
-                          width: screenSize.width,
+                            file,
+                            width: screenSize.width,
+                          ),
                         ),
-                      ),
+                ),
               ),
             ),
             AnimatedContainer(
