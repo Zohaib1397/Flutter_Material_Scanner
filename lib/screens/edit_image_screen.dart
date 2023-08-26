@@ -21,6 +21,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
   late File file;
   bool filterToggle = true;
   int bottomBarSwitchPosition = 0;
+  int borderAtIndex = 0;
 
   @override
   void initState() {
@@ -64,18 +65,22 @@ class _EditImageScreenState extends State<EditImageScreen> {
               height: filterToggle? 80: 0,
               child: Container(
                 color: Colors.black,
-                child: ListView.separated(
-                  separatorBuilder: (context, index) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: Container(),
-                  ),
+                child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: 40,
-                  itemBuilder: (context, index) => Image.file(
-                    file,
-                    width: 60.0,
-                    height: 60.0,
-                  ),
+                  itemBuilder: (context, index){
+                    return index==borderAtIndex ? Container(
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                      child: buildImageFromFile(),
+                    ) : GestureDetector(
+                      onTap: (){
+                        setState(() {
+                          borderAtIndex = index;
+                        });
+                      },
+                      child: buildImageFromFile(),
+                    );
+                  }
                 ),
               ),
             ),
@@ -120,6 +125,17 @@ class _EditImageScreenState extends State<EditImageScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildImageFromFile() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Image.file(
+                        file,
+                        width: 60.0,
+                        height: 60.0,
+                      ),
     );
   }
 }
