@@ -20,14 +20,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final materialScannerTheme = ScannerTheme();
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Material Scanner",
-      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.green, applyElevationOverlayColor: true),
-      darkTheme: ThemeData(useMaterial3: true),
-
+      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.green),
       // theme: materialScannerTheme.lightTheme(),
-      // darkTheme: materialScannerTheme.darkTheme(),
+      darkTheme: materialScannerTheme.darkTheme(),
       initialRoute: HomeScreen.id,
       routes: {
         HomeScreen.id: (context) => const HomeScreen(),

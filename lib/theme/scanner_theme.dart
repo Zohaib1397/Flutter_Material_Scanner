@@ -65,7 +65,7 @@ class ScannerTheme {
     inverseSurface: Color(0xFFE3E3DC),
     inversePrimary: Color(0xFF3B6A1D),
     shadow: Color(0xFF000000),
-    surfaceTint: Color(0xFF9FD67B),
+    surfaceTint: Color(0xFF9FD67B),//#E6F1E3
     outlineVariant: Color(0xFF43483E),
     scrim: Color(0xFF000000),
   );

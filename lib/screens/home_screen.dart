@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../model/InputFieldHandler.dart';
 import '../model/document.dart';
@@ -95,6 +96,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   SliverAppBar buildSliverAppBar() {
     return SliverAppBar(
+      systemOverlayStyle: SystemUiOverlayStyle(
+        systemNavigationBarColor: Theme.of(context).colorScheme.secondaryContainer,
+      ),
       //A sliver app bar with a title and just one trailing icon to create a new folder
       centerTitle: false,
       titleSpacing: 16,
