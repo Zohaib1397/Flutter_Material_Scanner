@@ -22,6 +22,8 @@ class _EditImageScreenState extends State<EditImageScreen> {
   bool filterToggle = true;
   int bottomBarSwitchPosition = 0;
   int borderAtIndex = 0;
+  final controller = PageController();
+  List<List<double>> colorFilters = [NORMAL, SEPIA_MATRIX, SEPIUM, SWEET_MATRIX, GREYSCALE_MATRIX, VINTAGE_MATRIX, PURPLE];
 
   @override
   void initState() {
@@ -33,9 +35,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     return Theme(
-      data: ThemeData.from(
-        colorScheme: ScannerTheme().darkColorScheme
-      ),
+      data: ThemeData.from(colorScheme: ScannerTheme().darkColorScheme),
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
@@ -52,36 +52,52 @@ class _EditImageScreenState extends State<EditImageScreen> {
           children: [
             Expanded(
               child: Center(
-                child: PhotoView.customChild(
-                  child: Image.file(
-                    file,
-                    width: screenSize.width,
-                  ),
-                ),
+                child: filterToggle
+                    ? PageView.builder(
+                        controller: controller,
+                        itemCount: colorFilters.length,
+                        itemBuilder: (context, index) => ColorFiltered(
+                          colorFilter: ColorFilter.matrix(colorFilters[index]),
+                          child: Image.file(
+                                file,
+                                width: screenSize.width,
+                              ),
+                        ))
+                    : PhotoView.customChild(
+                        child: Image.file(
+                          file,
+                          width: screenSize.width,
+                        ),
+                      ),
               ),
             ),
             AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              height: filterToggle? 80: 0,
+              duration: const Duration(milliseconds: 100),
+              height: filterToggle ? 80 : 0,
               child: Container(
                 color: Colors.black,
                 child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 40,
-                  itemBuilder: (context, index){
-                    return index==borderAtIndex ? Container(
-                      color: Theme.of(context).colorScheme.secondaryContainer,
-                      child: buildImageFromFile(),
-                    ) : GestureDetector(
-                      onTap: (){
-                        setState(() {
-                          borderAtIndex = index;
-                        });
-                      },
-                      child: buildImageFromFile(),
-                    );
-                  }
-                ),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: colorFilters.length,
+                    itemBuilder: (context, index) {
+                      return index == borderAtIndex
+                          ? Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.secondary,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: buildImageFromFile(index),
+                            )
+                          : GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  controller.animateToPage(index, duration: Duration(milliseconds: 500), curve: Curves.easeInOut);
+                                  borderAtIndex = index;
+                                });
+                              },
+                              child: buildImageFromFile(index),
+                            );
+                    }),
               ),
             ),
             BottomNavigationBar(
@@ -92,14 +108,12 @@ class _EditImageScreenState extends State<EditImageScreen> {
                     filterToggle = true;
                     bottomBarSwitchPosition = 0;
                   });
-                }
-                else if (value == 1){
+                } else if (value == 1) {
                   setState(() {
                     filterToggle = false;
                     bottomBarSwitchPosition = 1;
                   });
-                }
-                else if (value == 2){
+                } else if (value == 2) {
                   setState(() {
                     filterToggle = false;
                     bottomBarSwitchPosition = 2;
@@ -128,14 +142,17 @@ class _EditImageScreenState extends State<EditImageScreen> {
     );
   }
 
-  Widget buildImageFromFile() {
+  Widget buildImageFromFile(int index) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Image.file(
-                        file,
-                        width: 60.0,
-                        height: 60.0,
-                      ),
+      child: ColorFiltered(
+        colorFilter: ColorFilter.matrix(colorFilters[index]),
+        child: Image.file(
+          file,
+          width: 60.0,
+          height: 60.0,
+        ),
+      ),
     );
   }
 }
