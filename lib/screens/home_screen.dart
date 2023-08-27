@@ -174,14 +174,31 @@ class _HomeScreenState extends State<HomeScreen> {
         innerColor: Theme.of(context).colorScheme.surfaceVariant,
         indicatorColor: Theme.of(context).colorScheme.onPrimary,
         height: 46,
-
+        indicatorBorder: Border(
+          top: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
+          left: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
+          right: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
+          bottom: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
+        ),
         indicatorSize: const Size(46, double.infinity),
-        current: 1,
+        current: activeLayout == Layout.GRID? 0: 1,
         values: [0, 1],
         iconBuilder: (value,size, above){
           IconData data = Icons.list_rounded;
           if (value.isEven) data = Icons.grid_view_rounded;
           return Icon(data, size: min(size.width, size.height), color: Theme.of(context).colorScheme.primary,);
+        },
+        onChanged: (value){
+          if(value == 0){
+            setState(() {
+              activeLayout = Layout.GRID;
+            });
+          }
+          else if(value == 1){
+            setState(() {
+              activeLayout = Layout.LIST;
+            });
+          }
         },
       ),
     );
