@@ -11,6 +11,20 @@ const kConstantBlackScreenLabelTheme = TextStyle(
   color: Colors.white,
 );
 
+///---------------------
+///Color Filters section
+///---------------------
+
+List<List<double>> colorFilters = [
+  NORMAL,
+  SEPIA_MATRIX,
+  SEPIUM,
+  SWEET_MATRIX,
+  GREYSCALE_MATRIX,
+  VINTAGE_MATRIX,
+  PURPLE
+];
+
 const NORMAL = [1.0, 0.0, 0.0, 0.0, 0.0,
   0.0, 1.0, 0.0, 0.0, 0.0,
   0.0, 0.0, 1.0, 0.0, 0.0,

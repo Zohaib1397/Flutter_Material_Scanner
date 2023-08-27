@@ -1,9 +1,11 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:material_scanner/Theme/scanner_theme.dart';
 import 'package:photo_view/photo_view.dart';
 import '../model/document.dart';
 import 'dart:io';
-
+import 'dart:ui' as ui;
 import '../utils/constants.dart';
 
 class EditImageScreen extends StatefulWidget {
@@ -18,37 +20,57 @@ class EditImageScreen extends StatefulWidget {
 }
 
 class _EditImageScreenState extends State<EditImageScreen> {
+
+  //File to be called at initialization stage where we get the file from the uri of the provided document
   late File file;
+
+
+  /*--------------
+  * Color Filter Section
+  * ------------*/
+  final GlobalKey _colorFilteredImageKey = GlobalKey();
+  //Filter Toggle is the Color Filter option upon selecting the color filter option in the bottom bar
   bool filterToggle = true;
-  int bottomBarSwitchPosition = 0;
-  int borderAtIndex = 0;
-  final controller = PageController();
-  late Image currentImage;
+  int currentFilterIndex = 0; // to determine which color filter the user is currently in
+  final controller = PageController(); // Color filter page controller
+
+  int bottomBarSwitchPosition = 0; // determine the position of the selected button
+  //Image from file which can be changed dynamically by modification features
+  Image? currentImage;
+
+  // Size widget for current device width and height
   late Size screenSize;
-  List<List<double>> colorFilters = [
-    NORMAL,
-    SEPIA_MATRIX,
-    SEPIUM,
-    SWEET_MATRIX,
-    GREYSCALE_MATRIX,
-    VINTAGE_MATRIX,
-    PURPLE
-  ];
+
+  ///----------------
+  /// Custom Functions
+  /// ---------------
+  Size getScreenSize(BuildContext context) {
+    return MediaQuery.sizeOf(context);
+  }
+
+  void convertFilterToImage()async{
+    RenderRepaintBoundary renderRepaintBoundary = _colorFilteredImageKey.currentContext?.findRenderObject() as RenderRepaintBoundary;
+    ui.Image boxImage = await renderRepaintBoundary.toImage(pixelRatio: 1);
+    ByteData? byteData = await boxImage.toByteData(format: ui.ImageByteFormat.png);
+    Uint8List? uInt8list = byteData?.buffer.asUint8List();
+    setState(() {
+      currentImage = Image.memory(uInt8list!, width: screenSize.width);
+      filterToggle = false;
+      bottomBarSwitchPosition = 1;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     file = File(widget.document.uri);
-    screenSize = getScreenSize(context);
-    currentImage = Image.file(file, width: screenSize.width);
   }
 
-  Size getScreenSize(BuildContext context) {
-    return MediaQuery.sizeOf(context);
-  }
 
   @override
   Widget build(BuildContext context) {
+    screenSize = getScreenSize(context);
+    currentImage ??= Image.file(file, width: screenSize.width);
     return Theme(
       data: ThemeData.from(colorScheme: ScannerTheme().darkColorScheme),
       child: Scaffold(
@@ -58,7 +80,14 @@ class _EditImageScreenState extends State<EditImageScreen> {
           title: const Text("Edit Image"),
           iconTheme: const IconThemeData(color: Colors.white),
           actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.save)),
+            filterToggle
+                ? IconButton(onPressed: () {
+                  setState(() {
+                    convertFilterToImage();
+                    // currentImage = ColorFiltered(colorFilter: colorFilters[currentFilterIndex], child: currentImage,)
+                  });
+            }, icon: const Icon(Icons.done))
+                : IconButton(onPressed: () {}, icon: const Icon(Icons.save)),
           ],
         ),
         body: Column(
@@ -66,21 +95,23 @@ class _EditImageScreenState extends State<EditImageScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              child: RepaintBoundary(
-                child: Center(
-                  child: filterToggle
-                      ? PageView.builder(
-                          controller: controller, //Page controller manipulated by filter row
+              child: Center(
+                child: filterToggle
+                    ? RepaintBoundary(
+                      key: _colorFilteredImageKey,
+                      child: PageView.builder(
+                          controller: controller,
+                          //Page controller manipulated by filter row
                           itemCount: colorFilters.length,
                           itemBuilder: (context, index) => ColorFiltered(
                                 colorFilter:
                                     ColorFilter.matrix(colorFilters[index]),
                                 child: currentImage,
-                              ))
-                      : PhotoView.customChild(
-                          child: currentImage,
-                        ),
-                ),
+                              )),
+                    )
+                    : PhotoView.customChild(
+                        child: currentImage,
+                      ),
               ),
             ),
             AnimatedContainer(
@@ -92,7 +123,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
                     scrollDirection: Axis.horizontal,
                     itemCount: colorFilters.length,
                     itemBuilder: (context, index) {
-                      return index == borderAtIndex
+                      return index == currentFilterIndex
                           ? Container(
                               decoration: BoxDecoration(
                                 color: Theme.of(context).colorScheme.secondary,
@@ -104,9 +135,10 @@ class _EditImageScreenState extends State<EditImageScreen> {
                               onTap: () {
                                 setState(() {
                                   controller.animateToPage(index,
-                                      duration: const Duration(milliseconds: 500),
+                                      duration:
+                                          const Duration(milliseconds: 500),
                                       curve: Curves.easeInOut);
-                                  borderAtIndex = index;
+                                  currentFilterIndex = index;
                                 });
                               },
                               child: buildImageFromFile(index),
