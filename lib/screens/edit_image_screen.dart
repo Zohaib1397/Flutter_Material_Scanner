@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:material_scanner/Theme/scanner_theme.dart';
@@ -29,13 +30,23 @@ class _EditImageScreenState extends State<EditImageScreen> {
   final GlobalKey _colorFilteredImageKey = GlobalKey();
 
   //Filter Toggle is the Color Filter option upon selecting the color filter option in the bottom bar
-  bool filterToggle = true;
+  bool filterToggle = false;
   int currentFilterIndex =
       0; // to determine which color filter the user is currently in
   final controller = PageController(); // Color filter page controller
 
-  int bottomBarSwitchPosition =
-      0; // determine the position of the selected button
+  ///-----------------
+  ///Adjust (Crop and rotate) section
+  ///-----------------
+  bool adjustToggle = false;
+
+  ///-----------------
+  ///add (Emoji) section
+  ///-----------------
+  bool addElementToggle = false;
+
+  int? bottomBarSwitchPosition =
+      -1; // determine the position of the selected button
   //Image from file which can be changed dynamically by modification features
   Image? currentImage;
 
@@ -134,8 +145,14 @@ class _EditImageScreenState extends State<EditImageScreen> {
                       return index == currentFilterIndex
                           ? Container(
                               decoration: BoxDecoration(
+                                border: Border(
+                                  top: BorderSide(color: Colors.red),
+                                  bottom: BorderSide(color: Colors.red),
+                                  left: BorderSide(color: Colors.red),
+                                  right: BorderSide(color: Colors.red),
+                                ),
                                 color: Theme.of(context).colorScheme.secondary,
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(16),
                               ),
                               child: buildImageFromFile(index),
                             )
@@ -154,55 +171,86 @@ class _EditImageScreenState extends State<EditImageScreen> {
                     }),
               ),
             ),
-
-            // BottomNavigationBar(
-            //   backgroundColor: Colors.black,
-            //   onTap: (value) {
-            //     if (value == 0) {
-            //       setState(() {
-            //         filterToggle = true;
-            //         bottomBarSwitchPosition = 0;
-            //       });
-            //     } else if (value == 1) {
-            //       setState(() {
-            //         filterToggle = false;
-            //         bottomBarSwitchPosition = 1;
-            //       });
-            //     } else if (value == 2) {
-            //       setState(() {
-            //         filterToggle = false;
-            //         bottomBarSwitchPosition = 2;
-            //       });
-            //     }
-            //   },
-            //   currentIndex: bottomBarSwitchPosition,
-            //   items: const [
-            //     BottomNavigationBarItem(
-            //         icon: Icon(Icons.photo_filter),
-            //         label: "Filter",
-            //         tooltip: "Filter Image"),
-            //     BottomNavigationBarItem(
-            //         icon: Icon(Icons.crop_rotate),
-            //         label: "Adjust",
-            //         tooltip: "Crop and Rotate"),
-            //     BottomNavigationBarItem(
-            //         icon: Icon(Icons.add_reaction_outlined),
-            //         label: "Emoji",
-            //         tooltip: "Add Emoji"),
-            //   ],
-            // ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOut,
+              constraints: BoxConstraints(
+                minWidth: screenSize.width,
+                maxHeight: 56,
+              ),
+              decoration: const BoxDecoration(
+                color: Colors.black,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  buildBottomToolsButton(
+                    Icons.photo_filter_rounded,
+                    "Filter",
+                    onPressed: () {
+                      setState(() {
+                        filterToggle = !filterToggle;
+                      });
+                    },
+                    active: filterToggle,
+                  ),
+                  buildBottomToolsButton(
+                    Icons.crop_rotate_rounded,
+                    "Adjust",
+                    onPressed: () {
+                      setState(() {
+                        adjustToggle = !adjustToggle;
+                      });
+                    },
+                    active: adjustToggle,
+                  ),
+                  buildBottomToolsButton(
+                    Icons.add_reaction_outlined,
+                    "Emoji",
+                    onPressed: () {
+                      setState(() {
+                        addElementToggle = !addElementToggle;
+                      });
+                    },
+                    active: addElementToggle,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget buildTextButton(){
-    return Column(
-      children: [
-        Icon(Icons.photo_filter_rounded),
-        Text("Filter"),
-      ],
+  Widget buildBottomToolsButton(IconData iconData, String title,
+      {bool active = false, required Function() onPressed}) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              color: active
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : Colors.transparent,
+            ),
+            child: AnimatedPadding(
+              duration: const Duration(milliseconds: 200),
+              padding: EdgeInsets.symmetric(
+                  vertical: 3.0, horizontal: active ? 10.0 : 0.0),
+              child: Icon(iconData,
+                  color: active
+                      ? Colors.black
+                      : Theme.of(context).colorScheme.onPrimary),
+            ),
+          ),
+          Text(title)
+        ],
+      ),
     );
   }
 

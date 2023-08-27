@@ -167,98 +167,40 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCustomFilterSwitcher() {
-    return Container(
-      child: AnimatedToggleSwitch.rolling(
-        borderWidth: 0,
-        borderColor: Colors.transparent,
-        innerColor: Theme.of(context).colorScheme.surfaceVariant,
-        indicatorColor: Theme.of(context).colorScheme.onPrimary,
-        height: 46,
-        indicatorBorder: Border(
-          top: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
-          left: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
-          right: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
-          bottom: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
-        ),
-        indicatorSize: const Size(46, double.infinity),
-        current: activeLayout == Layout.GRID? 0: 1,
-        values: [0, 1],
-        iconBuilder: (value,size, above){
-          IconData data = Icons.list_rounded;
-          if (value.isEven) data = Icons.grid_view_rounded;
-          return Icon(data, size: min(size.width, size.height), color: Theme.of(context).colorScheme.primary,);
-        },
-        onChanged: (value){
-          if(value == 0){
-            setState(() {
-              activeLayout = Layout.GRID;
-            });
-          }
-          else if(value == 1){
-            setState(() {
-              activeLayout = Layout.LIST;
-            });
-          }
-        },
+    return AnimatedToggleSwitch.rolling(
+      borderWidth: 0,
+      borderColor: Colors.transparent,
+      innerColor: Theme.of(context).colorScheme.surfaceVariant,
+      indicatorColor: Theme.of(context).colorScheme.onPrimary,
+      height: 46,
+      indicatorBorder: Border(
+        top: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
+        left: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
+        right: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
+        bottom: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
       ),
+      indicatorSize: const Size(46, double.infinity),
+      current: activeLayout == Layout.GRID? 0: 1,
+      values: const [0, 1],
+      iconBuilder: (value,size, above){
+        IconData data = Icons.list_rounded;
+        if (value.isEven) data = Icons.grid_view_rounded;
+        return Icon(data, size: min(size.width, size.height), color: Theme.of(context).colorScheme.primary,);
+      },
+      onChanged: (value){
+        if(value == 0){
+          setState(() {
+            activeLayout = Layout.GRID;
+          });
+        }
+        else if(value == 1){
+          setState(() {
+            activeLayout = Layout.LIST;
+          });
+        }
+      },
     );
-    // return Container(
-    //   constraints: const BoxConstraints(maxHeight: 46),
-    //   decoration: BoxDecoration(
-    //     borderRadius: BorderRadius.circular(40),
-    //     color: Theme.of(context).colorScheme.surfaceVariant,
-    //   ),
-    //   child: Stack(
-    //     children: [
-    //       AnimatedAlign(
-    //         duration: const Duration(milliseconds: 70),
-    //         alignment: activeLayout == Layout.LIST
-    //             ? Alignment.centerRight
-    //             : Alignment.centerLeft,
-    //         child: Padding(
-    //           padding: const EdgeInsets.symmetric(horizontal: 4),
-    //           child: Container(
-    //             constraints: const BoxConstraints(maxWidth: 40, maxHeight: 40),
-    //             decoration: BoxDecoration(
-    //               color: Theme.of(context).colorScheme.onPrimary,
-    //               borderRadius: BorderRadius.circular(40),
-    //             ),
-    //           ),
-    //         ),
-    //       ),
-    //       Align(
-    //         alignment: Alignment.centerLeft,
-    //         child: IconButton(
-    //           tooltip: "Grid View",
-    //           onPressed: () {
-    //             if (activeLayout == Layout.LIST) {
-    //               setState(() {
-    //                 activeLayout = Layout.GRID;
-    //               });
-    //             }
-    //           },
-    //           icon: Icon(Icons.grid_view_rounded,
-    //               color: Theme.of(context).colorScheme.primary),
-    //         ),
-    //       ),
-    //       Align(
-    //         alignment: Alignment.centerRight,
-    //         child: IconButton(
-    //           tooltip: "List View",
-    //           onPressed: () {
-    //             if (activeLayout == Layout.GRID) {
-    //               setState(() {
-    //                 activeLayout = Layout.LIST;
-    //               });
-    //             }
-    //           },
-    //           icon: Icon(Icons.list_outlined,
-    //               color: Theme.of(context).colorScheme.primary),
-    //         ),
-    //       ),
-    //     ],
-    //   ),
-    // );
+    //
   }
 
   NavigationBar buildBottomNavigationBar() {
