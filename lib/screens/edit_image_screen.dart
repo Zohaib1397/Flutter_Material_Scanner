@@ -23,17 +23,32 @@ class _EditImageScreenState extends State<EditImageScreen> {
   int bottomBarSwitchPosition = 0;
   int borderAtIndex = 0;
   final controller = PageController();
-  List<List<double>> colorFilters = [NORMAL, SEPIA_MATRIX, SEPIUM, SWEET_MATRIX, GREYSCALE_MATRIX, VINTAGE_MATRIX, PURPLE];
+  late Image currentImage;
+  late Size screenSize;
+  List<List<double>> colorFilters = [
+    NORMAL,
+    SEPIA_MATRIX,
+    SEPIUM,
+    SWEET_MATRIX,
+    GREYSCALE_MATRIX,
+    VINTAGE_MATRIX,
+    PURPLE
+  ];
 
   @override
   void initState() {
     super.initState();
     file = File(widget.document.uri);
+    screenSize = getScreenSize(context);
+    currentImage = Image.file(file, width: screenSize.width);
+  }
+
+  Size getScreenSize(BuildContext context) {
+    return MediaQuery.sizeOf(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
     return Theme(
       data: ThemeData.from(colorScheme: ScannerTheme().darkColorScheme),
       child: Scaffold(
@@ -55,20 +70,15 @@ class _EditImageScreenState extends State<EditImageScreen> {
                 child: Center(
                   child: filterToggle
                       ? PageView.builder(
-                          controller: controller,
+                          controller: controller, //Page controller manipulated by filter row
                           itemCount: colorFilters.length,
                           itemBuilder: (context, index) => ColorFiltered(
-                            colorFilter: ColorFilter.matrix(colorFilters[index]),
-                            child: Image.file(
-                                  file,
-                                  width: screenSize.width,
-                                ),
-                          ))
+                                colorFilter:
+                                    ColorFilter.matrix(colorFilters[index]),
+                                child: currentImage,
+                              ))
                       : PhotoView.customChild(
-                          child: Image.file(
-                            file,
-                            width: screenSize.width,
-                          ),
+                          child: currentImage,
                         ),
                 ),
               ),
@@ -93,7 +103,9 @@ class _EditImageScreenState extends State<EditImageScreen> {
                           : GestureDetector(
                               onTap: () {
                                 setState(() {
-                                  controller.animateToPage(index, duration: Duration(milliseconds: 500), curve: Curves.easeInOut);
+                                  controller.animateToPage(index,
+                                      duration: const Duration(milliseconds: 500),
+                                      curve: Curves.easeInOut);
                                   borderAtIndex = index;
                                 });
                               },
