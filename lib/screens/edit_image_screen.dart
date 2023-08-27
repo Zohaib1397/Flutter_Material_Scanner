@@ -20,26 +20,31 @@ class EditImageScreen extends StatefulWidget {
 }
 
 class _EditImageScreenState extends State<EditImageScreen> {
-
   //File to be called at initialization stage where we get the file from the uri of the provided document
   late File file;
-
 
   /*--------------
   * Color Filter Section
   * ------------*/
   final GlobalKey _colorFilteredImageKey = GlobalKey();
+
   //Filter Toggle is the Color Filter option upon selecting the color filter option in the bottom bar
   bool filterToggle = true;
-  int currentFilterIndex = 0; // to determine which color filter the user is currently in
+  int currentFilterIndex =
+      0; // to determine which color filter the user is currently in
   final controller = PageController(); // Color filter page controller
 
-  int bottomBarSwitchPosition = 0; // determine the position of the selected button
+  int bottomBarSwitchPosition =
+      0; // determine the position of the selected button
   //Image from file which can be changed dynamically by modification features
   Image? currentImage;
 
   // Size widget for current device width and height
   late Size screenSize;
+
+  //These stacks are maintained during the editing process
+  List<Uint8List> undoStack = [];
+  List<Uint8List> redoStack = [];
 
   ///----------------
   /// Custom Functions
@@ -48,10 +53,13 @@ class _EditImageScreenState extends State<EditImageScreen> {
     return MediaQuery.sizeOf(context);
   }
 
-  void convertFilterToImage()async{
-    RenderRepaintBoundary renderRepaintBoundary = _colorFilteredImageKey.currentContext?.findRenderObject() as RenderRepaintBoundary;
+  void convertFilterToImage() async {
+    RenderRepaintBoundary renderRepaintBoundary =
+        _colorFilteredImageKey.currentContext?.findRenderObject()
+            as RenderRepaintBoundary;
     ui.Image boxImage = await renderRepaintBoundary.toImage(pixelRatio: 1);
-    ByteData? byteData = await boxImage.toByteData(format: ui.ImageByteFormat.png);
+    ByteData? byteData =
+        await boxImage.toByteData(format: ui.ImageByteFormat.png);
     Uint8List? uInt8list = byteData?.buffer.asUint8List();
     setState(() {
       currentImage = Image.memory(uInt8list!, width: screenSize.width);
@@ -65,7 +73,6 @@ class _EditImageScreenState extends State<EditImageScreen> {
     super.initState();
     file = File(widget.document.uri);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -81,12 +88,13 @@ class _EditImageScreenState extends State<EditImageScreen> {
           iconTheme: const IconThemeData(color: Colors.white),
           actions: [
             filterToggle
-                ? IconButton(onPressed: () {
-                  setState(() {
-                    convertFilterToImage();
-                    // currentImage = ColorFiltered(colorFilter: colorFilters[currentFilterIndex], child: currentImage,)
-                  });
-            }, icon: const Icon(Icons.done))
+                ? IconButton(
+                    onPressed: () {
+                      setState(() {
+                        convertFilterToImage();
+                      });
+                    },
+                    icon: const Icon(Icons.done))
                 : IconButton(onPressed: () {}, icon: const Icon(Icons.save)),
           ],
         ),
@@ -98,17 +106,17 @@ class _EditImageScreenState extends State<EditImageScreen> {
               child: Center(
                 child: filterToggle
                     ? RepaintBoundary(
-                      key: _colorFilteredImageKey,
-                      child: PageView.builder(
-                          controller: controller,
-                          //Page controller manipulated by filter row
-                          itemCount: colorFilters.length,
-                          itemBuilder: (context, index) => ColorFiltered(
-                                colorFilter:
-                                    ColorFilter.matrix(colorFilters[index]),
-                                child: currentImage,
-                              )),
-                    )
+                        key: _colorFilteredImageKey,
+                        child: PageView.builder(
+                            controller: controller,
+                            //Page controller manipulated by filter row
+                            itemCount: colorFilters.length,
+                            itemBuilder: (context, index) => ColorFiltered(
+                                  colorFilter:
+                                      ColorFilter.matrix(colorFilters[index]),
+                                  child: currentImage,
+                                )),
+                      )
                     : PhotoView.customChild(
                         child: currentImage,
                       ),
@@ -146,45 +154,55 @@ class _EditImageScreenState extends State<EditImageScreen> {
                     }),
               ),
             ),
-            BottomNavigationBar(
-              backgroundColor: Colors.black,
-              onTap: (value) {
-                if (value == 0) {
-                  setState(() {
-                    filterToggle = true;
-                    bottomBarSwitchPosition = 0;
-                  });
-                } else if (value == 1) {
-                  setState(() {
-                    filterToggle = false;
-                    bottomBarSwitchPosition = 1;
-                  });
-                } else if (value == 2) {
-                  setState(() {
-                    filterToggle = false;
-                    bottomBarSwitchPosition = 2;
-                  });
-                }
-              },
-              currentIndex: bottomBarSwitchPosition,
-              items: const [
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.photo_filter),
-                    label: "Filter",
-                    tooltip: "Filter Image"),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.crop_rotate),
-                    label: "Adjust",
-                    tooltip: "Crop and Rotate"),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.add_reaction_outlined),
-                    label: "Emoji",
-                    tooltip: "Add Emoji"),
-              ],
-            ),
+
+            // BottomNavigationBar(
+            //   backgroundColor: Colors.black,
+            //   onTap: (value) {
+            //     if (value == 0) {
+            //       setState(() {
+            //         filterToggle = true;
+            //         bottomBarSwitchPosition = 0;
+            //       });
+            //     } else if (value == 1) {
+            //       setState(() {
+            //         filterToggle = false;
+            //         bottomBarSwitchPosition = 1;
+            //       });
+            //     } else if (value == 2) {
+            //       setState(() {
+            //         filterToggle = false;
+            //         bottomBarSwitchPosition = 2;
+            //       });
+            //     }
+            //   },
+            //   currentIndex: bottomBarSwitchPosition,
+            //   items: const [
+            //     BottomNavigationBarItem(
+            //         icon: Icon(Icons.photo_filter),
+            //         label: "Filter",
+            //         tooltip: "Filter Image"),
+            //     BottomNavigationBarItem(
+            //         icon: Icon(Icons.crop_rotate),
+            //         label: "Adjust",
+            //         tooltip: "Crop and Rotate"),
+            //     BottomNavigationBarItem(
+            //         icon: Icon(Icons.add_reaction_outlined),
+            //         label: "Emoji",
+            //         tooltip: "Add Emoji"),
+            //   ],
+            // ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildTextButton(){
+    return Column(
+      children: [
+        Icon(Icons.photo_filter_rounded),
+        Text("Filter"),
+      ],
     );
   }
 

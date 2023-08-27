@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -38,10 +41,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Consumer<ImageViewModel>(
                     builder: (context, imageController, _) {
-                      List<Document> documentList = imageController.documentList;
+                      List<Document> documentList =
+                          imageController.documentList;
                       List<Widget> widgetTree = documentList
-                          .map((element) =>
-                              _buildDismissibleDocument(element))
+                          .map((element) => _buildDismissibleDocument(element))
                           .toList();
                       return Column(
                         children: widgetTree,
@@ -58,24 +61,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildDismissibleDocument(Document element) => Dismissible(
-    onDismissed: (direction) {
-      if (direction == DismissDirection.endToStart) {
-        Provider.of<ImageViewModel>(context, listen: false)
-            .deleteDocument(element);
-        setState(() {});
-      }
-    },
-    // confirmDismiss: (direction) async {
-    //   await Utils.showAlertDialog(context, "Delete Image", "Are you sure you want to delete this image?", "Delete", () => true);
-    // },
-    direction: DismissDirection.endToStart,
-    key: ObjectKey(element),
-    background: buildSwipingContainer(
-        Colors.red, "Delete", Icons.delete, Alignment.centerRight),
-    // background: buildSwipingContainer(
-    //     Colors.green, "Done", Icons.check_circle, Alignment.centerLeft),
-    child: DocumentView(document: element),
-  );
+        onDismissed: (direction) {
+          if (direction == DismissDirection.endToStart) {
+            Provider.of<ImageViewModel>(context, listen: false)
+                .deleteDocument(element);
+            setState(() {});
+          }
+        },
+        // confirmDismiss: (direction) async {
+        //   await Utils.showAlertDialog(context, "Delete Image", "Are you sure you want to delete this image?", "Delete", () => true);
+        // },
+        direction: DismissDirection.endToStart,
+        key: ObjectKey(element),
+        background: buildSwipingContainer(
+            Colors.red, "Delete", Icons.delete, Alignment.centerRight),
+        // background: buildSwipingContainer(
+        //     Colors.green, "Done", Icons.check_circle, Alignment.centerLeft),
+        child: DocumentView(document: element),
+      );
 
   Widget buildSwipingContainer(
           Color color, String text, IconData icon, Alignment alignment) =>
@@ -97,7 +100,8 @@ class _HomeScreenState extends State<HomeScreen> {
   SliverAppBar buildSliverAppBar() {
     return SliverAppBar(
       systemOverlayStyle: SystemUiOverlayStyle(
-        systemNavigationBarColor: Theme.of(context).colorScheme.secondaryContainer,
+        systemNavigationBarColor:
+            Theme.of(context).colorScheme.secondaryContainer,
       ),
       //A sliver app bar with a title and just one trailing icon to create a new folder
       centerTitle: false,
@@ -132,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
-            flex: screenWidth > 600 ? 8: 3,
+            flex: screenWidth > 600 ? 8 : 3,
             child: Container(
               constraints: const BoxConstraints(maxHeight: 46),
               child: TextField(
@@ -155,9 +159,8 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 16,
           ),
           Flexible(
-            flex: screenWidth > 600? 1: 1,
-            child: _buildCustomFilterSwitcher(),
-          ),
+            flex: screenWidth>600? 1: 1,
+              child: _buildCustomFilterSwitcher()),
         ],
       ),
     );
@@ -165,62 +168,80 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCustomFilterSwitcher() {
     return Container(
-      constraints: const BoxConstraints(maxHeight: 46),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(40),
-        color: Theme.of(context).colorScheme.surfaceVariant,
-      ),
-      child: Stack(
-        children: [
-          AnimatedAlign(
-            duration: const Duration(milliseconds: 70),
-            alignment: activeLayout == Layout.LIST
-                ? Alignment.centerRight
-                : Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 40, maxHeight: 40),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  borderRadius: BorderRadius.circular(40),
-                ),
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IconButton(
-              tooltip: "Grid View",
-              onPressed: () {
-                if (activeLayout == Layout.LIST) {
-                  setState(() {
-                    activeLayout = Layout.GRID;
-                  });
-                }
-              },
-              icon: Icon(Icons.grid_view_rounded,
-                  color: Theme.of(context).colorScheme.primary),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: IconButton(
-              tooltip: "List View",
-              onPressed: () {
-                if (activeLayout == Layout.GRID) {
-                  setState(() {
-                    activeLayout = Layout.LIST;
-                  });
-                }
-              },
-              icon: Icon(Icons.list_outlined,
-                  color: Theme.of(context).colorScheme.primary),
-            ),
-          ),
-        ],
+      child: AnimatedToggleSwitch.rolling(
+        borderWidth: 0,
+        borderColor: Colors.transparent,
+        innerColor: Theme.of(context).colorScheme.surfaceVariant,
+        indicatorColor: Theme.of(context).colorScheme.onPrimary,
+        height: 46,
+
+        indicatorSize: const Size(46, double.infinity),
+        current: 1,
+        values: [0, 1],
+        iconBuilder: (value,size, above){
+          IconData data = Icons.list_rounded;
+          if (value.isEven) data = Icons.grid_view_rounded;
+          return Icon(data, size: min(size.width, size.height), color: Theme.of(context).colorScheme.primary,);
+        },
       ),
     );
+    // return Container(
+    //   constraints: const BoxConstraints(maxHeight: 46),
+    //   decoration: BoxDecoration(
+    //     borderRadius: BorderRadius.circular(40),
+    //     color: Theme.of(context).colorScheme.surfaceVariant,
+    //   ),
+    //   child: Stack(
+    //     children: [
+    //       AnimatedAlign(
+    //         duration: const Duration(milliseconds: 70),
+    //         alignment: activeLayout == Layout.LIST
+    //             ? Alignment.centerRight
+    //             : Alignment.centerLeft,
+    //         child: Padding(
+    //           padding: const EdgeInsets.symmetric(horizontal: 4),
+    //           child: Container(
+    //             constraints: const BoxConstraints(maxWidth: 40, maxHeight: 40),
+    //             decoration: BoxDecoration(
+    //               color: Theme.of(context).colorScheme.onPrimary,
+    //               borderRadius: BorderRadius.circular(40),
+    //             ),
+    //           ),
+    //         ),
+    //       ),
+    //       Align(
+    //         alignment: Alignment.centerLeft,
+    //         child: IconButton(
+    //           tooltip: "Grid View",
+    //           onPressed: () {
+    //             if (activeLayout == Layout.LIST) {
+    //               setState(() {
+    //                 activeLayout = Layout.GRID;
+    //               });
+    //             }
+    //           },
+    //           icon: Icon(Icons.grid_view_rounded,
+    //               color: Theme.of(context).colorScheme.primary),
+    //         ),
+    //       ),
+    //       Align(
+    //         alignment: Alignment.centerRight,
+    //         child: IconButton(
+    //           tooltip: "List View",
+    //           onPressed: () {
+    //             if (activeLayout == Layout.GRID) {
+    //               setState(() {
+    //                 activeLayout = Layout.LIST;
+    //               });
+    //             }
+    //           },
+    //           icon: Icon(Icons.list_outlined,
+    //               color: Theme.of(context).colorScheme.primary),
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
 
   NavigationBar buildBottomNavigationBar() {
@@ -246,7 +267,8 @@ class _HomeScreenState extends State<HomeScreen> {
       tooltip: "Scan Document",
       child: const Icon(Icons.camera_alt_outlined),
       onPressed: () async {
-        Provider.of<ImageViewModel>(context, listen: false).performDocumentScan(context);
+        Provider.of<ImageViewModel>(context, listen: false)
+            .performDocumentScan(context);
       },
     );
   }
