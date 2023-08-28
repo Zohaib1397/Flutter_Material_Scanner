@@ -27,9 +27,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.green),
       // theme: materialScannerTheme.lightTheme(),
       darkTheme: materialScannerTheme.darkTheme(),
-      initialRoute: HomeScreen.id,
+      initialRoute: EditImageScreen.id,
       routes: {
         HomeScreen.id: (context) => const HomeScreen(),
+        EditImageScreen.id: (context) => const EditImageScreen(),
       },
     );
   }

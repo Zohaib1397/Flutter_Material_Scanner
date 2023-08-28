@@ -53,7 +53,7 @@ class _ViewImageState extends State<ViewImage> {
           type: BottomNavigationBarType.fixed,
           onTap: (value) async {
             if(value == 0){
-              Navigator.push(context, MaterialPageRoute(builder: (_) => EditImageScreen(document: widget.document)));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => EditImageScreen()));
             }
             else if(value == 1){
               await Share.shareXFiles([XFile(file.path)]);

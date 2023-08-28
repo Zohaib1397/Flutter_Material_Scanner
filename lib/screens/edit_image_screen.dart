@@ -1,8 +1,9 @@
 import 'dart:typed_data';
-import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:material_scanner/Theme/scanner_theme.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
 import '../model/document.dart';
 import 'dart:io';
@@ -10,9 +11,9 @@ import 'dart:ui' as ui;
 import '../utils/constants.dart';
 
 class EditImageScreen extends StatefulWidget {
-  const EditImageScreen({super.key, required this.document});
+  const EditImageScreen({super.key});
 
-  final Document document;
+  // final Document document;
 
   static const String id = "EditImageScreen";
 
@@ -64,6 +65,10 @@ class _EditImageScreenState extends State<EditImageScreen> {
     return MediaQuery.sizeOf(context);
   }
 
+  Future<Uint8List> convertImageToUnsigned(File file) async {
+    return await file.readAsBytes();
+  }
+
   void convertFilterToImage() async {
     RenderRepaintBoundary renderRepaintBoundary =
         _colorFilteredImageKey.currentContext?.findRenderObject()
@@ -79,16 +84,18 @@ class _EditImageScreenState extends State<EditImageScreen> {
     });
   }
 
+
   @override
   void initState() {
     super.initState();
-    file = File(widget.document.uri);
+    // file = File(widget.document.uri);
   }
 
   @override
   Widget build(BuildContext context) {
     screenSize = getScreenSize(context);
-    currentImage ??= Image.file(file, width: screenSize.width);
+    currentImage ??= Image(image: const AssetImage("assets/stable-diffusion-xl-5.jpg"), width: screenSize.width);
+    // currentImage ??= Image.file(file, width: screenSize.width);
     return Theme(
       data: ThemeData.from(colorScheme: ScannerTheme().darkColorScheme),
       child: Scaffold(
@@ -109,115 +116,121 @@ class _EditImageScreenState extends State<EditImageScreen> {
                 : IconButton(onPressed: () {}, icon: const Icon(Icons.save)),
           ],
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Center(
-                child: filterToggle
-                    ? RepaintBoundary(
-                        key: _colorFilteredImageKey,
-                        child: PageView.builder(
-                            controller: controller,
-                            //Page controller manipulated by filter row
-                            itemCount: colorFilters.length,
-                            itemBuilder: (context, index) => ColorFiltered(
-                                  colorFilter:
-                                      ColorFilter.matrix(colorFilters[index]),
-                                  child: currentImage,
-                                )),
-                      )
-                    : PhotoView.customChild(
-                        child: currentImage,
-                      ),
+        body: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Center(
+                  child: filterToggle
+                      ? RepaintBoundary(
+                          key: _colorFilteredImageKey,
+                          child: PageView.builder(
+                              controller: controller,
+                              //Page controller manipulated by filter row
+                              itemCount: colorFilters.length,
+                              itemBuilder: (context, index) => ColorFiltered(
+                                    colorFilter:
+                                        ColorFilter.matrix(colorFilters[index]),
+                                    child: currentImage,
+                                  )),
+                        )
+                      : PhotoView.customChild(
+                          child: currentImage,
+                        ),
+                ),
               ),
-            ),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 100),
-              height: filterToggle ? 80 : 0,
-              child: Container(
-                color: Colors.black,
-                child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: colorFilters.length,
-                    itemBuilder: (context, index) {
-                      return index == currentFilterIndex
-                          ? Container(
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  top: BorderSide(color: Colors.red),
-                                  bottom: BorderSide(color: Colors.red),
-                                  left: BorderSide(color: Colors.red),
-                                  right: BorderSide(color: Colors.red),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 100),
+                height: filterToggle ? 56 : 0,
+                child: Container(
+                  color: Colors.black,
+                  child: ListView.separated(
+                    separatorBuilder: (context, index){
+                      return const SizedBox(width: 5,);
+                    },
+                      scrollDirection: Axis.horizontal,
+                      itemCount: colorFilters.length,
+                      itemBuilder: (context, index) {
+                        return index == currentFilterIndex
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    top: BorderSide(color: Colors.red),
+                                    bottom: BorderSide(color: Colors.red),
+                                    left: BorderSide(color: Colors.red),
+                                    right: BorderSide(color: Colors.red),
+                                  ),
+                                  // color: Theme.of(context).colorScheme.secondary,
+                                  borderRadius: BorderRadius.circular(46),
                                 ),
-                                color: Theme.of(context).colorScheme.secondary,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: buildImageFromFile(index),
-                            )
-                          : GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  controller.animateToPage(index,
-                                      duration:
-                                          const Duration(milliseconds: 500),
-                                      curve: Curves.easeInOut);
-                                  currentFilterIndex = index;
-                                });
-                              },
-                              child: buildImageFromFile(index),
-                            );
-                    }),
+                                child: buildImageFromFile(index),
+                              )
+                            : GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    controller.animateToPage(index,
+                                        duration:
+                                            const Duration(milliseconds: 500),
+                                        curve: Curves.easeInOut);
+                                    currentFilterIndex = index;
+                                  });
+                                },
+                                child: buildImageFromFile(index),
+                              );
+                      }),
+                ),
               ),
-            ),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeInOut,
-              constraints: BoxConstraints(
-                minWidth: screenSize.width,
-                maxHeight: 56,
+              const SizedBox(height: 10,),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+                constraints: BoxConstraints(
+                  minWidth: screenSize.width,
+                  maxHeight: 56,
+                ),
+                decoration: const BoxDecoration(
+                  color: Colors.black,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    buildBottomToolsButton(
+                      Icons.photo_filter_rounded,
+                      "Filter",
+                      onPressed: () {
+                        setState(() {
+                          filterToggle = !filterToggle;
+                        });
+                      },
+                      active: filterToggle,
+                    ),
+                    buildBottomToolsButton(
+                      Icons.crop_rotate_rounded,
+                      "Adjust",
+                      onPressed: () {
+                        setState(() {
+                          adjustToggle = !adjustToggle;
+                        });
+                      },
+                      active: adjustToggle,
+                    ),
+                    buildBottomToolsButton(
+                      Icons.add_reaction_outlined,
+                      "Emoji",
+                      onPressed: () {
+                        setState(() {
+                          addElementToggle = !addElementToggle;
+                        });
+                      },
+                      active: addElementToggle,
+                    ),
+                  ],
+                ),
               ),
-              decoration: const BoxDecoration(
-                color: Colors.black,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  buildBottomToolsButton(
-                    Icons.photo_filter_rounded,
-                    "Filter",
-                    onPressed: () {
-                      setState(() {
-                        filterToggle = !filterToggle;
-                      });
-                    },
-                    active: filterToggle,
-                  ),
-                  buildBottomToolsButton(
-                    Icons.crop_rotate_rounded,
-                    "Adjust",
-                    onPressed: () {
-                      setState(() {
-                        adjustToggle = !adjustToggle;
-                      });
-                    },
-                    active: adjustToggle,
-                  ),
-                  buildBottomToolsButton(
-                    Icons.add_reaction_outlined,
-                    "Emoji",
-                    onPressed: () {
-                      setState(() {
-                        addElementToggle = !addElementToggle;
-                      });
-                    },
-                    active: addElementToggle,
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -255,15 +268,20 @@ class _EditImageScreenState extends State<EditImageScreen> {
   }
 
   Widget buildImageFromFile(int index) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(46),
       child: ColorFiltered(
         colorFilter: ColorFilter.matrix(colorFilters[index]),
-        child: Image.file(
-          file,
-          width: 60.0,
-          height: 60.0,
+        child: const Image(
+          image: AssetImage("assets/stable-diffusion-xl-5.jpg"),
+          // height: 60,
+          // width: 60,
         ),
+        // child: Image.file(
+        //   file,
+        //   width: 60.0,
+        //   height: 60.0,
+        // ),
       ),
     );
   }
