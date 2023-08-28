@@ -25,7 +25,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Material Scanner",
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.green),
-      // theme: materialScannerTheme.lightTheme(),
       darkTheme: materialScannerTheme.darkTheme(),
       initialRoute: EditImageScreen.id,
       routes: {
