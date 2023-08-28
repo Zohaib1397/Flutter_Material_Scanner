@@ -2,7 +2,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:flutter/rendering.dart';
 
 class EditImageController{
@@ -18,12 +17,6 @@ class EditImageController{
   int currentFilterIndex =
   0; // to determine which color filter the user is currently in
   final pageController = PageController(); // Color filter page controller
-
-  int? bottomBarSwitchPosition =
-  -1; // determine the position of the selected button
-  //Image from file which can be changed dynamically by modification features
-  Image? currentImage;
-
 
   //These stacks are maintained during the editing process
   List<Uint8List> undoStack = [];
@@ -47,7 +40,7 @@ class EditImageController{
   }
 
   Image convertUnsignedToImage(Uint8List uInt8list, double width){
-    return Image.memory(uInt8list, width: width,);
+    return Image.memory(uInt8list, width: width, filterQuality: FilterQuality.high,);
   }
 
   Future<Uint8List> convertImageToUnsigned(File file) async {
@@ -55,10 +48,11 @@ class EditImageController{
   }
 
   Future<Uint8List?> convertFilterToImage(GlobalKey colorFilteredImageKey) async {
+    //This code is needed to be changed
     RenderRepaintBoundary renderRepaintBoundary =
     colorFilteredImageKey.currentContext?.findRenderObject()
     as RenderRepaintBoundary;
-    ui.Image boxImage = await renderRepaintBoundary.toImage(pixelRatio: 1);
+    ui.Image boxImage = await renderRepaintBoundary.toImage(pixelRatio: 4);
     ByteData? byteData =
     await boxImage.toByteData(format: ui.ImageByteFormat.png);
     return byteData?.buffer.asUint8List();

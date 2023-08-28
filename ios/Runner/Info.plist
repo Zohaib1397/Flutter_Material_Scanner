@@ -4,6 +4,10 @@
 <dict>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>App need access to the library in order to save the image</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Used to capture audio for image picker plugin</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Used to demonstrate image picker plugin</string>
     <key>NSCameraUsageDescription</key>
     <string>Camera Permission Description</string>
 	<key>CFBundleDevelopmentRegion</key>

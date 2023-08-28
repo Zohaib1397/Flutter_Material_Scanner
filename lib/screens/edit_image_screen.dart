@@ -1,12 +1,12 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:material_scanner/Theme/scanner_theme.dart';
 import 'package:photo_view/photo_view.dart';
-import 'dart:io';
 import '../utils/constants.dart';
 import '../viewModel/edit_image_controller.dart';
+import 'dart:io';
 
 class EditImageScreen extends StatefulWidget {
   const EditImageScreen({super.key});
@@ -20,7 +20,6 @@ class EditImageScreen extends StatefulWidget {
 }
 
 class _EditImageScreenState extends State<EditImageScreen> {
-
   final imageController = EditImageController();
 
   /*--------------
@@ -28,6 +27,8 @@ class _EditImageScreenState extends State<EditImageScreen> {
   * ------------*/
   final GlobalKey _colorFilteredImageKey = GlobalKey();
 
+  PageController pageController =
+      PageController(); // Color filter page controller
 
   //Image from file which can be changed dynamically by modification features
   Image? currentImage;
@@ -35,6 +36,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
   // Size widget for current device width and height
   late Size screenSize;
 
+  bool initialFilterRun = false;
 
   ///----------------
   /// Custom Functions
@@ -44,6 +46,9 @@ class _EditImageScreenState extends State<EditImageScreen> {
     return MediaQuery.sizeOf(context);
   }
 
+  Image? defaultImage;
+  final ImagePicker picker = ImagePicker();
+  XFile? image;
   @override
   void initState() {
     super.initState();
@@ -62,34 +67,51 @@ class _EditImageScreenState extends State<EditImageScreen> {
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
+          centerTitle: false,
           elevation: 0,
           title: const Text("Edit Image"),
           iconTheme: const IconThemeData(color: Colors.white),
           leading: imageController.checkForAnyActivatedToggle()
               ? IconButton(
-                  onPressed: () {
-                    setState(() {
-                      imageController.resetToggles();
-                    });
-                  },
+                  onPressed: () =>
+                      setState(() => imageController.resetToggles()),
                   icon: const Icon(Icons.close),
                 )
               : IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.arrow_back)),
           actions: [
+            //If undo stack is null the undo button is disabled
+            IconButton(
+              disabledColor: Colors.white10,
+              onPressed: imageController.undoStack.isEmpty ? null : () {},
+              icon: Icon(Icons.undo_rounded),
+            ),
+            //similarly if redo stack is empty the redo button is disabled
+            IconButton(
+              disabledColor: Colors.white10,
+              onPressed: imageController.redoStack.isEmpty ? null : () {},
+              icon: Icon(Icons.redo_rounded),
+            ),
+            //Checking if any of the Menu button is toggled
             imageController.checkForAnyActivatedToggle()
+            //If toggled then show Tick button and perform save action of current activity
                 ? IconButton(
                     onPressed: () async {
-                      Uint8List? uInt8list = await imageController.convertFilterToImage(_colorFilteredImageKey);
+                      defaultImage = currentImage;
+                      Uint8List? uInt8list = await imageController
+                          .convertFilterToImage(_colorFilteredImageKey);
                       setState(() {
-                        if(uInt8list!= null){
-                          currentImage = imageController.convertUnsignedToImage(uInt8list, screenSize.width);
+                        if (uInt8list != null) {
+                          currentImage = imageController.convertUnsignedToImage(
+                              uInt8list, screenSize.width);
                           imageController.resetToggles();
                         }
+                        initialFilterRun = true;
                       });
                     },
                     icon: const Icon(Icons.done))
+            //if not then show save button that handles the database activity of saving
                 : IconButton(onPressed: () {}, icon: const Icon(Icons.save)),
           ],
         ),
@@ -104,9 +126,14 @@ class _EditImageScreenState extends State<EditImageScreen> {
                       ? RepaintBoundary(
                           key: _colorFilteredImageKey,
                           child: PageView.builder(
-                              controller: imageController.pageController,
+                              controller: pageController,
                               //Page controller manipulated by filter row
                               itemCount: colorFilters.length,
+                              onPageChanged: (value) {
+                                setState(() {
+                                  imageController.currentFilterIndex = value;
+                                });
+                              },
                               itemBuilder: (context, index) => ColorFiltered(
                                     colorFilter:
                                         ColorFilter.matrix(colorFilters[index]),
@@ -146,6 +173,9 @@ class _EditImageScreenState extends State<EditImageScreen> {
             "Filter",
             onPressed: () {
               setState(() {
+                if(initialFilterRun) currentImage = defaultImage;
+                pageController = PageController(
+                    initialPage: imageController.currentFilterIndex);
                 imageController.toggleMenuItem(0);
               });
             },
@@ -154,17 +184,47 @@ class _EditImageScreenState extends State<EditImageScreen> {
           buildBottomToolsButton(
             Icons.crop_rotate_rounded,
             "Adjust",
-            onPressed: () {
+            onPressed: () async{
               setState(() {
                 imageController.toggleMenuItem(1);
               });
+              CroppedFile? croppedFile = await ImageCropper().cropImage(
+                sourcePath: image!.path,
+                aspectRatioPresets: [
+                  CropAspectRatioPreset.square,
+                  CropAspectRatioPreset.ratio3x2,
+                  CropAspectRatioPreset.original,
+                  CropAspectRatioPreset.ratio4x3,
+                  CropAspectRatioPreset.ratio16x9
+                ],
+                uiSettings: [
+                  AndroidUiSettings(
+                      toolbarTitle: 'Cropper',
+                      toolbarColor: Colors.deepOrange,
+                      toolbarWidgetColor: Colors.white,
+                      hideBottomControls: true,
+                      initAspectRatio: CropAspectRatioPreset.original,
+
+                      lockAspectRatio: false),
+                  IOSUiSettings(
+                    title: 'Cropper',
+
+                  ),
+                  WebUiSettings(
+                    context: context,
+                  ),
+                ],
+              );
+              currentImage = Image.file(File(croppedFile!.path));
+              // await ImageCropper.cropImage(sourcePath: image!.path);
             },
             active: imageController.menuItemToggle[1],
           ),
           buildBottomToolsButton(
             Icons.add_reaction_outlined,
             "Emoji",
-            onPressed: () {
+            onPressed: () async {
+              image = await picker.pickImage(source: ImageSource.gallery);
               setState(() {
                 imageController.toggleMenuItem(2);
               });
@@ -205,7 +265,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
                   : GestureDetector(
                       onTap: () {
                         setState(() {
-                          imageController.pageController.animateToPage(index,
+                          pageController.animateToPage(index,
                               duration: const Duration(milliseconds: 500),
                               curve: Curves.easeInOut);
                           imageController.currentFilterIndex = index;
@@ -243,6 +303,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
                       : Theme.of(context).colorScheme.onPrimary),
             ),
           ),
+          const SizedBox(height: 2),
           Text(title)
         ],
       ),
