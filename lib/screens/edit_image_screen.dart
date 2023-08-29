@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:material_scanner/Theme/scanner_theme.dart';
 import 'package:photo_view/photo_view.dart';
 import '../utils/constants.dart';
+import '../utils/utils.dart';
 import '../viewModel/edit_image_controller.dart';
 import 'dart:io';
 
@@ -49,6 +50,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
   Image? defaultImage;
   final ImagePicker picker = ImagePicker();
   XFile? image;
+
   @override
   void initState() {
     super.initState();
@@ -73,8 +75,24 @@ class _EditImageScreenState extends State<EditImageScreen> {
           iconTheme: const IconThemeData(color: Colors.white),
           leading: imageController.checkForAnyActivatedToggle()
               ? IconButton(
-                  onPressed: () =>
-                      setState(() => imageController.resetToggles()),
+                  onPressed: () => setState(
+                    () {
+                      if (imageController.currentFilterIndex != 0) {
+                        Utils.showAlertDialog(
+                          context,
+                          "Discard Changes",
+                          "Are you sure to discard the changes?",
+                          "Yes",
+                          cancelText: "No",
+                          () => () {
+                            imageController.resetToggles();
+                          },
+                        );
+                      }else{
+                        imageController.resetToggles();
+                      }
+                    },
+                  ),
                   icon: const Icon(Icons.close),
                 )
               : IconButton(
@@ -85,17 +103,17 @@ class _EditImageScreenState extends State<EditImageScreen> {
             IconButton(
               disabledColor: Colors.white10,
               onPressed: imageController.undoStack.isEmpty ? null : () {},
-              icon: Icon(Icons.undo_rounded),
+              icon: const Icon(Icons.undo_rounded),
             ),
             //similarly if redo stack is empty the redo button is disabled
             IconButton(
               disabledColor: Colors.white10,
               onPressed: imageController.redoStack.isEmpty ? null : () {},
-              icon: Icon(Icons.redo_rounded),
+              icon: const Icon(Icons.redo_rounded),
             ),
             //Checking if any of the Menu button is toggled
             imageController.checkForAnyActivatedToggle()
-            //If toggled then show Tick button and perform save action of current activity
+                //If toggled then show Tick button and perform save action of current activity
                 ? IconButton(
                     onPressed: () async {
                       defaultImage = currentImage;
@@ -111,7 +129,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
                       });
                     },
                     icon: const Icon(Icons.done))
-            //if not then show save button that handles the database activity of saving
+                //if not then show save button that handles the database activity of saving
                 : IconButton(onPressed: () {}, icon: const Icon(Icons.save)),
           ],
         ),
@@ -173,7 +191,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
             "Filter",
             onPressed: () {
               setState(() {
-                if(initialFilterRun) currentImage = defaultImage;
+                if (initialFilterRun) currentImage = defaultImage;
                 pageController = PageController(
                     initialPage: imageController.currentFilterIndex);
                 imageController.toggleMenuItem(0);
@@ -184,10 +202,11 @@ class _EditImageScreenState extends State<EditImageScreen> {
           buildBottomToolsButton(
             Icons.crop_rotate_rounded,
             "Adjust",
-            onPressed: () async{
+            onPressed: () async {
               setState(() {
                 imageController.toggleMenuItem(1);
               });
+              image = await picker.pickImage(source: ImageSource.gallery);
               CroppedFile? croppedFile = await ImageCropper().cropImage(
                 sourcePath: image!.path,
                 aspectRatioPresets: [
@@ -200,18 +219,13 @@ class _EditImageScreenState extends State<EditImageScreen> {
                 uiSettings: [
                   AndroidUiSettings(
                       toolbarTitle: 'Cropper',
-                      toolbarColor: Colors.deepOrange,
-                      toolbarWidgetColor: Colors.white,
-                      hideBottomControls: true,
+                      toolbarColor:
+                          Theme.of(context).colorScheme.secondaryContainer,
+                      toolbarWidgetColor: Colors.black,
                       initAspectRatio: CropAspectRatioPreset.original,
-
                       lockAspectRatio: false),
                   IOSUiSettings(
                     title: 'Cropper',
-
-                  ),
-                  WebUiSettings(
-                    context: context,
                   ),
                 ],
               );
@@ -224,7 +238,6 @@ class _EditImageScreenState extends State<EditImageScreen> {
             Icons.add_reaction_outlined,
             "Emoji",
             onPressed: () async {
-              image = await picker.pickImage(source: ImageSource.gallery);
               setState(() {
                 imageController.toggleMenuItem(2);
               });
