@@ -63,7 +63,7 @@ class _ViewImageState extends State<ViewImage> {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Image Saved Successfully")));
             }
             else if(value == 3){
-              Utils.showAlertDialog(context, "Delete Image", "Are you sure you want to delete this image?", "Delete", (){
+              Utils.showAlertDialog(context,  title: "Delete Image", content:"Are you sure you want to delete this image?", confirmText: "Delete", onConfirm: (){
                 Provider.of<ImageViewModel>(context, listen:false).deleteDocument(widget.document);
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Image Deleted Successfully")));
                 Navigator.pop(context);

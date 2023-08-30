@@ -4,14 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 class Utils {
-  static Future<void> showAlertDialog(BuildContext context, String title,
-      String content, String buttonText, Function() onConfirm,
-      {String cancelText = "Cancel", Function()? onCancel}) async {
+  static Future<void> showAlertDialog(BuildContext context, {required String title,
+      required String content, required String confirmText, required Function() onConfirm,
+      String cancelText = "Cancel"}) async {
     Widget cancelButton() => TextButton(
-          onPressed: () {
-            onCancel!();
-            Navigator.of(context).pop(false);
-          },
+          onPressed: () => Navigator.of(context).pop(false),
           child: Text(cancelText),
         );
     Widget confirmButton() => TextButton(
@@ -19,7 +16,7 @@ class Utils {
             onConfirm();
             Navigator.of(context).pop(true);
           },
-          child: Text(buttonText),
+          child: Text(confirmText),
         );
     AlertDialog alert = AlertDialog(
       title: Text(title),

@@ -1,13 +1,19 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/rendering.dart';
+import '../model/StackList.dart';
 
 class EditImageController{
   //File to be called at initialization stage where we get the file from the uri of the provided document
   late File file;
 
+  EditImageController(){
+    undoStack = StackList();
+    redoStack = StackList();
+  }
   /*--------------
   * Color Filter Section
   * ------------*/
@@ -19,16 +25,20 @@ class EditImageController{
   final pageController = PageController(); // Color filter page controller
 
   //These stacks are maintained during the editing process
-  List<Uint8List> undoStack = [];
-  List<Uint8List> redoStack = [];
+  late StackList<Uint8List> undoStack;
+  late StackList<Uint8List> redoStack;
 
   ///----------------
   /// Custom Functions
   /// ---------------
 
+  void resetRedoStack(){
+    redoStack.clear();
+  }
+
   bool checkForAnyActivatedToggle(){
     for(int i =0 ;i<menuItemToggle.length;i++){
-      if(menuItemToggle[i]){
+      if(menuItemToggle[i] && i!=1){
         return true;
       }
     }
@@ -43,8 +53,20 @@ class EditImageController{
     return Image.memory(uInt8list, width: width, filterQuality: FilterQuality.high,);
   }
 
-  Future<Uint8List> convertImageToUnsigned(File file) async {
-    return await file.readAsBytes();
+  Future<Uint8List> convertImageToUnsigned(Image image) async {
+    ImageProvider imageProvider = image.image;
+    ImageStream imageStream = imageProvider.resolve(ImageConfiguration.empty);
+    Completer<Uint8List> completer = Completer();
+
+    // Convert the loaded image to UInt8List
+    imageStream.addListener(ImageStreamListener((ImageInfo imageInfo, bool synchronousCall) async {
+      ByteData? byteData = await imageInfo.image.toByteData(format: ui.ImageByteFormat.png);
+      Uint8List uInt8list = byteData!.buffer.asUint8List();
+      completer.complete(uInt8list);
+    }));
+
+    Uint8List imageUInt8List = await completer.future;
+    return imageUInt8List;
   }
 
   Future<Uint8List?> convertFilterToImage(GlobalKey colorFilteredImageKey) async {
@@ -61,5 +83,9 @@ class EditImageController{
   void toggleMenuItem(int index){
     menuItemToggle = List.generate(menuItemToggle.length, (i)=> i!=index? false: true);
   }
-
+  void dispose(){
+    undoStack.clear();
+    redoStack.clear();
+    currentFilterIndex = 0;
+  }
 }

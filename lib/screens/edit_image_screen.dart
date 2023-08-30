@@ -80,15 +80,14 @@ class _EditImageScreenState extends State<EditImageScreen> {
                       if (imageController.currentFilterIndex != 0) {
                         Utils.showAlertDialog(
                           context,
-                          "Discard Changes",
-                          "Are you sure to discard the changes?",
-                          "Yes",
-                          cancelText: "No",
-                          () => () {
+                          title: "Discard Changes",
+                          content: "Are you sure to discard the changes?",
+                          confirmText: "Discard",
+                          onConfirm: () {
                             imageController.resetToggles();
                           },
                         );
-                      }else{
+                      } else {
                         imageController.resetToggles();
                       }
                     },
@@ -100,17 +99,72 @@ class _EditImageScreenState extends State<EditImageScreen> {
                   icon: const Icon(Icons.arrow_back)),
           actions: [
             //If undo stack is null the undo button is disabled
-            IconButton(
-              disabledColor: Colors.white10,
-              onPressed: imageController.undoStack.isEmpty ? null : () {},
-              icon: const Icon(Icons.undo_rounded),
-            ),
+            imageController.checkForAnyActivatedToggle()
+                ? Container()
+                : IconButton(
+                    disabledColor: Colors.white10,
+                    tooltip: "Undo",
+
+                    ///If this is the case that the undoStack has data then do something on press
+                    ///else make the button disable
+                    onPressed: imageController.undoStack.canPop()
+                        ? () async {
+                            Uint8List previousImage = await imageController
+                                .convertImageToUnsigned(currentImage!);
+                            setState(() {
+                              ///Take out the last element in the undo stack
+                              Uint8List lastElement =
+                                  imageController.undoStack.top();
+                              print(lastElement);
+
+                              ///and load it to the image in the center
+                              currentImage =
+                                  imageController.convertUnsignedToImage(
+                                      lastElement, screenSize.width);
+
+                              ///Also save the last element to the redo stack to make it redo-able
+                              imageController.redoStack.push(previousImage);
+
+                              ///finally pop undo stack element
+                              imageController.undoStack.pop();
+                            });
+                          }
+                        : null,
+                    icon: const Icon(Icons.undo_rounded),
+                  ),
             //similarly if redo stack is empty the redo button is disabled
-            IconButton(
-              disabledColor: Colors.white10,
-              onPressed: imageController.redoStack.isEmpty ? null : () {},
-              icon: const Icon(Icons.redo_rounded),
-            ),
+            imageController.checkForAnyActivatedToggle()
+                ? Container()
+                : IconButton(
+                    disabledColor: Colors.white10,
+                    tooltip: "Redo",
+
+                    ///If this is the case that the redoStack has data then do something on press
+                    ///else make the button disable
+                    onPressed: imageController.redoStack.canPop()
+                        ? () async {
+                            Uint8List previousImage = await imageController
+                                .convertImageToUnsigned(currentImage!);
+                            setState(() {
+                              ///Take out the last element in the redo stack
+                              ///and load it to the image in the center
+                              Uint8List lastElement =
+                                  imageController.redoStack.top();
+                              print(lastElement);
+                              currentImage =
+                                  imageController.convertUnsignedToImage(
+                                      lastElement, screenSize.width);
+
+                              ///Also save the last element to the undo stack to make it undo-able
+                              imageController.undoStack.push(previousImage);
+
+                              ///finally pop redo stack element
+                              imageController.redoStack.pop();
+                            });
+                          }
+                        : null,
+                    icon: const Icon(Icons.redo_rounded),
+                  ),
             //Checking if any of the Menu button is toggled
             imageController.checkForAnyActivatedToggle()
                 //If toggled then show Tick button and perform save action of current activity
@@ -119,13 +173,17 @@ class _EditImageScreenState extends State<EditImageScreen> {
                       defaultImage = currentImage;
                       Uint8List? uInt8list = await imageController
                           .convertFilterToImage(_colorFilteredImageKey);
+                      final previousImage = await imageController
+                          .convertImageToUnsigned(currentImage!);
                       setState(() {
                         if (uInt8list != null) {
+                          imageController.undoStack.push(previousImage);
                           currentImage = imageController.convertUnsignedToImage(
                               uInt8list, screenSize.width);
                           imageController.resetToggles();
                         }
                         initialFilterRun = true;
+                        imageController.redoStack.clear();
                       });
                     },
                     icon: const Icon(Icons.done))
@@ -218,21 +276,26 @@ class _EditImageScreenState extends State<EditImageScreen> {
                 ],
                 uiSettings: [
                   AndroidUiSettings(
-                      toolbarTitle: 'Cropper',
-                      toolbarColor:
-                          Theme.of(context).colorScheme.secondaryContainer,
-                      toolbarWidgetColor: Colors.black,
-                      initAspectRatio: CropAspectRatioPreset.original,
-                      lockAspectRatio: false),
+                    toolbarTitle: 'Crop and Rotate',
+                    toolbarColor:
+                        Theme.of(context).colorScheme.onPrimaryContainer,
+                    toolbarWidgetColor: Colors.white,
+                    initAspectRatio: CropAspectRatioPreset.original,
+                    lockAspectRatio: false,
+                    activeControlsWidgetColor:
+                        Theme.of(context).colorScheme.primary,
+                    dimmedLayerColor: Theme.of(context).disabledColor,
+                  ),
                   IOSUiSettings(
-                    title: 'Cropper',
+                    title: 'Crop and Rotate',
                   ),
                 ],
               );
-              currentImage = Image.file(File(croppedFile!.path));
-              // await ImageCropper.cropImage(sourcePath: image!.path);
+              setState(() => currentImage = croppedFile != null
+                  ? Image.file(File(croppedFile.path))
+                  : currentImage);
             },
-            active: imageController.menuItemToggle[1],
+            active: false,
           ),
           buildBottomToolsButton(
             Icons.add_reaction_outlined,
