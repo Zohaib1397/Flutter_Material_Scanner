@@ -4,9 +4,9 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_scanner/Theme/scanner_theme.dart';
 import 'package:photo_view/photo_view.dart';
-import '../utils/constants.dart';
-import '../utils/utils.dart';
-import '../viewModel/edit_image_controller.dart';
+import '../../utils/constants.dart';
+import '../../utils/utils.dart';
+import '../../viewModel/edit_image_controller.dart';
 import 'dart:io';
 
 class EditImageScreen extends StatefulWidget {
@@ -319,37 +319,38 @@ class _EditImageScreenState extends State<EditImageScreen> {
       child: Container(
         color: Colors.black,
         child: ListView.separated(
-            separatorBuilder: (context, index) {
-              return const SizedBox(
-                width: 5,
-              );
-            },
-            scrollDirection: Axis.horizontal,
-            itemCount: colorFilters.length,
-            itemBuilder: (context, index) {
-              return index == imageController.currentFilterIndex
-                  ? Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.red,
-                        ),
-                        // color: Theme.of(context).colorScheme.secondary,
-                        borderRadius: BorderRadius.circular(46),
+          separatorBuilder: (context, index) {
+            return const SizedBox(
+              width: 5,
+            );
+          },
+          scrollDirection: Axis.horizontal,
+          itemCount: colorFilters.length,
+          itemBuilder: (context, index) {
+            return index == imageController.currentFilterIndex
+                ? Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.red,
                       ),
-                      child: buildImageFromFile(index),
-                    )
-                  : GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          pageController.animateToPage(index,
-                              duration: const Duration(milliseconds: 500),
-                              curve: Curves.easeInOut);
-                          imageController.currentFilterIndex = index;
-                        });
-                      },
-                      child: buildImageFromFile(index),
-                    );
-            }),
+                      // color: Theme.of(context).colorScheme.secondary,
+                      borderRadius: BorderRadius.circular(46),
+                    ),
+                    child: buildImageFromFile(index),
+                  )
+                : GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        pageController.animateToPage(index,
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeInOut);
+                        imageController.currentFilterIndex = index;
+                      });
+                    },
+                    child: buildImageFromFile(index),
+                  );
+          },
+        ),
       ),
     );
   }

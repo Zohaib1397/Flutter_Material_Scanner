@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gallery_saver/gallery_saver.dart';
-import 'package:material_scanner/screens/edit_image_screen.dart';
+import 'package:material_scanner/screens/Image%20Editing%20Screens/edit_image_screen.dart';
 import 'package:provider/provider.dart';
 import '../../model/document.dart';
 import 'dart:io';
