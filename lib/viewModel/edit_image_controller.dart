@@ -28,6 +28,8 @@ class EditImageController{
   late StackList<Uint8List> undoStack;
   late StackList<Uint8List> redoStack;
 
+  bool navBarActive = true;
+
   ///----------------
   /// Custom Functions
   /// ---------------
@@ -39,6 +41,7 @@ class EditImageController{
   bool checkForAnyActivatedToggle(){
     for(int i =0 ;i<menuItemToggle.length;i++){
       if(menuItemToggle[i] && i!=1){
+        navBarActive = false;
         return true;
       }
     }
@@ -46,6 +49,7 @@ class EditImageController{
   }
 
   void resetToggles(){
+    navBarActive = true;
     menuItemToggle = List.filled(menuItemToggle.length, false);
   }
 

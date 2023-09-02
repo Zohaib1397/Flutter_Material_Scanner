@@ -225,7 +225,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
               const SizedBox(
                 height: 10,
               ),
-              buildAnimatedBottomNavBar(),
+              imageController.navBarActive? buildAnimatedBottomNavBar() : Container(),
             ],
           ),
         ),
@@ -301,6 +301,18 @@ class _EditImageScreenState extends State<EditImageScreen> {
             Icons.add_reaction_outlined,
             "Emoji",
             onPressed: () async {
+              showDialog(context: context, builder: (_) => Container(
+                constraints: BoxConstraints(
+                  maxHeight: 400,
+                  maxWidth: 200,
+                ),
+                child: Center(
+                  child: TextField(
+                    // keyboardType: TextInputType.,
+                  ),
+                ),
+              ));
+
               setState(() {
                 imageController.toggleMenuItem(2);
               });
@@ -312,9 +324,8 @@ class _EditImageScreenState extends State<EditImageScreen> {
     );
   }
 
-  AnimatedContainer buildAnimatedFilters() {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 100),
+  Widget buildAnimatedFilters() {
+    return Container(
       height: imageController.menuItemToggle[0] ? 56 : 0,
       child: Container(
         color: Colors.black,
@@ -357,30 +368,17 @@ class _EditImageScreenState extends State<EditImageScreen> {
 
   Widget buildBottomToolsButton(IconData iconData, String title,
       {bool active = false, required Function() onPressed}) {
-    return GestureDetector(
-      onTap: onPressed,
+    return MaterialButton(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30)
+      ),
+      onPressed: onPressed,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              color: active
-                  ? Theme.of(context).colorScheme.primaryContainer
-                  : Colors.transparent,
-            ),
-            child: AnimatedPadding(
-              duration: const Duration(milliseconds: 200),
-              padding: EdgeInsets.symmetric(
-                  vertical: 3.0, horizontal: active ? 10.0 : 0.0),
-              child: Icon(iconData,
-                  color: active
-                      ? Colors.black
-                      : Theme.of(context).colorScheme.onPrimary),
-            ),
-          ),
-          const SizedBox(height: 2),
+          Icon(iconData,
+              color: Theme.of(context).colorScheme.onPrimary),
+          const SizedBox(height: 4),
           Text(title)
         ],
       ),
