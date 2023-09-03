@@ -20,13 +20,11 @@ class _ImageTextScreenState extends State<ImageTextScreen> {
       data: ThemeData.dark(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Add Emoji")
+          title: const Text("Add Text")
         ),
         body: Column(
           children: [
-            Expanded(
-              child: Image.memory(widget.imageMemory, width: screenSize.width),
-            ),
+
 
           ],
         ),

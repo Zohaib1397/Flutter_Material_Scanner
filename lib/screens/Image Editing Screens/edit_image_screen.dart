@@ -6,13 +6,14 @@ import 'package:material_scanner/Theme/scanner_theme.dart';
 import 'package:photo_view/photo_view.dart';
 import '../../utils/constants.dart';
 import '../../utils/utils.dart';
+import '../../model/document.dart';
 import '../../viewModel/edit_image_controller.dart';
 import 'dart:io';
 
 class EditImageScreen extends StatefulWidget {
-  const EditImageScreen({super.key});
+  final Document document;
+  const EditImageScreen({super.key, required this.document});
 
-  // final Document document;
 
   static const String id = "EditImageScreen";
 
@@ -21,7 +22,7 @@ class EditImageScreen extends StatefulWidget {
 }
 
 class _EditImageScreenState extends State<EditImageScreen> {
-  final imageController = EditImageController();
+  final editImageController = EditImageController();
 
   /*--------------
   * Color Filter Section
@@ -54,7 +55,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
   @override
   void initState() {
     super.initState();
-    // imageController.file = File(widget.document.uri);
+    editImageController.file = File(widget.document.uri);
   }
 
   @override
@@ -73,22 +74,22 @@ class _EditImageScreenState extends State<EditImageScreen> {
           elevation: 0,
           title: const Text("Edit Image"),
           iconTheme: const IconThemeData(color: Colors.white),
-          leading: imageController.checkForAnyActivatedToggle()
+          leading: editImageController.checkForAnyActivatedToggle()
               ? IconButton(
                   onPressed: () => setState(
                     () {
-                      if (imageController.currentFilterIndex != 0) {
+                      if (editImageController.currentFilterIndex != 0) {
                         Utils.showAlertDialog(
                           context,
                           title: "Discard Changes",
                           content: "Are you sure to discard the changes?",
                           confirmText: "Discard",
                           onConfirm: () {
-                            imageController.resetToggles();
+                            editImageController.resetToggles();
                           },
                         );
                       } else {
-                        imageController.resetToggles();
+                        editImageController.resetToggles();
                       }
                     },
                   ),
@@ -99,7 +100,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
                   icon: const Icon(Icons.arrow_back)),
           actions: [
             //If undo stack is null the undo button is disabled
-            imageController.checkForAnyActivatedToggle()
+            editImageController.checkForAnyActivatedToggle()
                 ? Container()
                 : IconButton(
                     disabledColor: Colors.white10,
@@ -107,33 +108,33 @@ class _EditImageScreenState extends State<EditImageScreen> {
 
                     ///If this is the case that the undoStack has data then do something on press
                     ///else make the button disable
-                    onPressed: imageController.undoStack.canPop()
+                    onPressed: editImageController.undoStack.canPop()
                         ? () async {
-                            Uint8List previousImage = await imageController
+                            Uint8List previousImage = await editImageController
                                 .convertImageToUnsigned(currentImage!);
                             setState(() {
                               ///Take out the last element in the undo stack
                               Uint8List lastElement =
-                                  imageController.undoStack.top();
+                                  editImageController.undoStack.top();
                               print(lastElement);
 
                               ///and load it to the image in the center
                               currentImage =
-                                  imageController.convertUnsignedToImage(
+                                  editImageController.convertUnsignedToImage(
                                       lastElement, screenSize.width);
 
                               ///Also save the last element to the redo stack to make it redo-able
-                              imageController.redoStack.push(previousImage);
+                              editImageController.redoStack.push(previousImage);
 
                               ///finally pop undo stack element
-                              imageController.undoStack.pop();
+                              editImageController.undoStack.pop();
                             });
                           }
                         : null,
                     icon: const Icon(Icons.undo_rounded),
                   ),
             //similarly if redo stack is empty the redo button is disabled
-            imageController.checkForAnyActivatedToggle()
+            editImageController.checkForAnyActivatedToggle()
                 ? Container()
                 : IconButton(
                     disabledColor: Colors.white10,
@@ -141,49 +142,49 @@ class _EditImageScreenState extends State<EditImageScreen> {
 
                     ///If this is the case that the redoStack has data then do something on press
                     ///else make the button disable
-                    onPressed: imageController.redoStack.canPop()
+                    onPressed: editImageController.redoStack.canPop()
                         ? () async {
-                            Uint8List previousImage = await imageController
+                            Uint8List previousImage = await editImageController
                                 .convertImageToUnsigned(currentImage!);
                             setState(() {
                               ///Take out the last element in the redo stack
                               ///and load it to the image in the center
                               Uint8List lastElement =
-                                  imageController.redoStack.top();
+                                  editImageController.redoStack.top();
                               print(lastElement);
                               currentImage =
-                                  imageController.convertUnsignedToImage(
+                                  editImageController.convertUnsignedToImage(
                                       lastElement, screenSize.width);
 
                               ///Also save the last element to the undo stack to make it undo-able
-                              imageController.undoStack.push(previousImage);
+                              editImageController.undoStack.push(previousImage);
 
                               ///finally pop redo stack element
-                              imageController.redoStack.pop();
+                              editImageController.redoStack.pop();
                             });
                           }
                         : null,
                     icon: const Icon(Icons.redo_rounded),
                   ),
             //Checking if any of the Menu button is toggled
-            imageController.checkForAnyActivatedToggle()
+            editImageController.checkForAnyActivatedToggle()
                 //If toggled then show Tick button and perform save action of current activity
                 ? IconButton(
                     onPressed: () async {
                       defaultImage = currentImage;
-                      Uint8List? uInt8list = await imageController
+                      Uint8List? uInt8list = await editImageController
                           .convertFilterToImage(_colorFilteredImageKey);
-                      final previousImage = await imageController
+                      final previousImage = await editImageController
                           .convertImageToUnsigned(currentImage!);
                       setState(() {
                         if (uInt8list != null) {
-                          imageController.undoStack.push(previousImage);
-                          currentImage = imageController.convertUnsignedToImage(
+                          editImageController.undoStack.push(previousImage);
+                          currentImage = editImageController.convertUnsignedToImage(
                               uInt8list, screenSize.width);
-                          imageController.resetToggles();
+                          editImageController.resetToggles();
                         }
                         initialFilterRun = true;
-                        imageController.redoStack.clear();
+                        editImageController.redoStack.clear();
                       });
                     },
                     icon: const Icon(Icons.done))
@@ -198,7 +199,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
             children: [
               Expanded(
                 child: Center(
-                  child: imageController.menuItemToggle[0]
+                  child: editImageController.menuItemToggle[0]
                       ? RepaintBoundary(
                           key: _colorFilteredImageKey,
                           child: PageView.builder(
@@ -207,7 +208,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
                               itemCount: colorFilters.length,
                               onPageChanged: (value) {
                                 setState(() {
-                                  imageController.currentFilterIndex = value;
+                                  editImageController.currentFilterIndex = value;
                                 });
                               },
                               itemBuilder: (context, index) => ColorFiltered(
@@ -225,7 +226,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
               const SizedBox(
                 height: 10,
               ),
-              imageController.navBarActive? buildAnimatedBottomNavBar() : Container(),
+              editImageController.navBarActive? buildAnimatedBottomNavBar() : Container(),
             ],
           ),
         ),
@@ -251,22 +252,22 @@ class _EditImageScreenState extends State<EditImageScreen> {
               setState(() {
                 if (initialFilterRun) currentImage = defaultImage;
                 pageController = PageController(
-                    initialPage: imageController.currentFilterIndex);
-                imageController.toggleMenuItem(0);
+                    initialPage: editImageController.currentFilterIndex);
+                editImageController.toggleMenuItem(0);
               });
             },
-            active: imageController.menuItemToggle[0],
+            active: editImageController.menuItemToggle[0],
           ),
           buildBottomToolsButton(
             Icons.crop_rotate_rounded,
             "Adjust",
             onPressed: () async {
               setState(() {
-                imageController.toggleMenuItem(1);
+                editImageController.toggleMenuItem(1);
               });
               image = await picker.pickImage(source: ImageSource.gallery);
               CroppedFile? croppedFile = await ImageCropper().cropImage(
-                sourcePath: image!.path,
+                sourcePath: editImageController.file.path,
                 aspectRatioPresets: [
                   CropAspectRatioPreset.square,
                   CropAspectRatioPreset.ratio3x2,
@@ -297,28 +298,21 @@ class _EditImageScreenState extends State<EditImageScreen> {
             },
             active: false,
           ),
-          buildBottomToolsButton(
-            Icons.add_reaction_outlined,
-            "Emoji",
-            onPressed: () async {
-              showDialog(context: context, builder: (_) => Container(
-                constraints: BoxConstraints(
-                  maxHeight: 400,
-                  maxWidth: 200,
-                ),
-                child: Center(
-                  child: TextField(
-                    // keyboardType: TextInputType.,
-                  ),
-                ),
-              ));
-
-              setState(() {
-                imageController.toggleMenuItem(2);
-              });
-            },
-            active: imageController.menuItemToggle[2],
-          ),
+          // buildBottomToolsButton(
+          //   Icons.add_reaction_outlined,
+          //   "Emoji",
+          //   onPressed: () async {
+          //     Uint8List imageMemory = await imageController.convertImageToUnsigned(currentImage!);
+          //     showModalBottomSheet(context: context, builder: (context) {
+          //
+          //       return ImageTextScreen(imageMemory: imageMemory);
+          //     });
+          //     setState(() {
+          //       imageController.toggleMenuItem(2);
+          //     });
+          //   },
+          //   active: imageController.menuItemToggle[2],
+          // ),
         ],
       ),
     );
@@ -326,7 +320,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
 
   Widget buildAnimatedFilters() {
     return Container(
-      height: imageController.menuItemToggle[0] ? 56 : 0,
+      height: editImageController.menuItemToggle[0] ? 56 : 0,
       child: Container(
         color: Colors.black,
         child: ListView.separated(
@@ -338,7 +332,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
           scrollDirection: Axis.horizontal,
           itemCount: colorFilters.length,
           itemBuilder: (context, index) {
-            return index == imageController.currentFilterIndex
+            return index == editImageController.currentFilterIndex
                 ? Container(
                     decoration: BoxDecoration(
                       border: Border.all(
@@ -355,7 +349,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
                         pageController.animateToPage(index,
                             duration: const Duration(milliseconds: 500),
                             curve: Curves.easeInOut);
-                        imageController.currentFilterIndex = index;
+                        editImageController.currentFilterIndex = index;
                       });
                     },
                     child: buildImageFromFile(index),
@@ -390,16 +384,14 @@ class _EditImageScreenState extends State<EditImageScreen> {
       borderRadius: BorderRadius.circular(46),
       child: ColorFiltered(
         colorFilter: ColorFilter.matrix(colorFilters[index]),
-        child: const Image(
-          image: AssetImage("assets/stable-diffusion-xl-5.jpg"),
-          // height: 60,
-          // width: 60,
-        ),
-        // child: Image.file(
-        //   file,
-        //   width: 60.0,
-        //   height: 60.0,
+        // child: const Image(
+        //   image: AssetImage("assets/stable-diffusion-xl-5.jpg"),
         // ),
+        child: Image.file(
+          editImageController.file,
+          width: 60.0,
+          height: 60.0,
+        ),
       ),
     );
   }

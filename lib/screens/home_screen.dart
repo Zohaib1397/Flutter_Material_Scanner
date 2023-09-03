@@ -1,8 +1,9 @@
 import 'dart:math';
-
+import 'dart:io' show Platform;
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../model/InputFieldHandler.dart';
 import '../model/document.dart';
@@ -22,6 +23,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _searchField = InputFieldHandler();
+
+  final imagePicker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +50,29 @@ class _HomeScreenState extends State<HomeScreen> {
                           .map((element) => _buildDismissibleDocument(element))
                           .toList();
                       return Column(
-                        children: widgetTree,
+                        mainAxisAlignment: imageController.isEmpty()
+                            ? MainAxisAlignment.center
+                            : MainAxisAlignment.start,
+                        children: [
+                          ...widgetTree,
+                          imageController.isEmpty()
+                              ? Container(
+                                  height: 400,
+                                  width: 400,
+                                  child: Column(
+                                    children: [
+                                      Image(
+                                        image:
+                                            AssetImage("assets/empty_list.png"),
+                                        height: 70,
+                                        width: 70,
+                                      ),
+                                      Text("List is Empty"),
+                                    ],
+                                  ),
+                                )
+                              : Container(),
+                        ],
                       );
                     },
                   ),
@@ -159,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 16,
           ),
           Flexible(
-            flex: screenWidth>600? 1: 1,
+              flex: screenWidth > 600 ? 1 : 1,
               child: _buildCustomFilterSwitcher()),
         ],
       ),
@@ -174,26 +199,33 @@ class _HomeScreenState extends State<HomeScreen> {
       indicatorColor: Theme.of(context).colorScheme.onPrimary,
       height: 46,
       indicatorBorder: Border(
-        top: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
-        left: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
-        right: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
-        bottom: BorderSide(color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
+        top: BorderSide(
+            color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
+        left: BorderSide(
+            color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
+        right: BorderSide(
+            color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
+        bottom: BorderSide(
+            color: Theme.of(context).colorScheme.surfaceVariant, width: 1.0),
       ),
       indicatorSize: const Size(46, double.infinity),
-      current: activeLayout == Layout.GRID? 0: 1,
+      current: activeLayout == Layout.GRID ? 0 : 1,
       values: const [0, 1],
-      iconBuilder: (value,size, above){
+      iconBuilder: (value, size, above) {
         IconData data = Icons.list_rounded;
         if (value.isEven) data = Icons.grid_view_rounded;
-        return Icon(data, size: min(size.width, size.height), color: Theme.of(context).colorScheme.primary,);
+        return Icon(
+          data,
+          size: min(size.width, size.height),
+          color: Theme.of(context).colorScheme.primary,
+        );
       },
-      onChanged: (value){
-        if(value == 0){
+      onChanged: (value) {
+        if (value == 0) {
           setState(() {
             activeLayout = Layout.GRID;
           });
-        }
-        else if(value == 1){
+        } else if (value == 1) {
           setState(() {
             activeLayout = Layout.LIST;
           });
@@ -226,8 +258,14 @@ class _HomeScreenState extends State<HomeScreen> {
       tooltip: "Scan Document",
       child: const Icon(Icons.camera_alt_outlined),
       onPressed: () async {
-        Provider.of<ImageViewModel>(context, listen: false)
-            .performDocumentScan(context);
+        if(Platform.isIOS){
+          XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
+          Provider.of<ImageViewModel>(context, listen: false)
+              .importFromCameraRoll(context, image!);
+        }else {
+          Provider.of<ImageViewModel>(context, listen: false)
+              .performDocumentScan(context);
+        }
       },
     );
   }

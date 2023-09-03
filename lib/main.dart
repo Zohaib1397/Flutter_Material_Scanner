@@ -26,10 +26,10 @@ class MyApp extends StatelessWidget {
       title: "Material Scanner",
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.green),
       darkTheme: materialScannerTheme.darkTheme(),
-      initialRoute: EditImageScreen.id,
+      initialRoute: HomeScreen.id,
       routes: {
         HomeScreen.id: (context) => const HomeScreen(),
-        EditImageScreen.id: (context) => const EditImageScreen(),
+        // EditImageScreen.id: (context) => const EditImageScreen(),
       },
     );
   }
