@@ -48,11 +48,12 @@ class DatabaseHelper {
         print("Database list is empty");
         return [];
       }
+      print("Database Rows:  ${maps.length}");
+      print(maps);
       print("Returning the list of documents");
-      return List.generate(
-          maps.length, (index) => Document.fromJson(maps[index]));
+      return List.generate(maps.length, (index) => Document.fromJson(maps[index]));
     } catch (e) {
-      print(e.toString());
+      print("${e.toString()} Exception in reading data");
       return [];
     }
   }

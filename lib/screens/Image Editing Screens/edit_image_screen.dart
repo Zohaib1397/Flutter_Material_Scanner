@@ -61,10 +61,10 @@ class _EditImageScreenState extends State<EditImageScreen> {
   @override
   Widget build(BuildContext context) {
     screenSize = getScreenSize(context);
-    currentImage ??= Image(
-        image: const AssetImage("assets/stable-diffusion-xl-5.jpg"),
-        width: screenSize.width);
-    // currentImage ??= Image.file(file, width: screenSize.width);
+    // currentImage ??= Image(
+    //     image: const AssetImage("assets/stable-diffusion-xl-5.jpg"),
+    //     width: screenSize.width);
+    currentImage ??= Image.file(editImageController.file, width: screenSize.width);
     return Theme(
       data: ThemeData.from(colorScheme: ScannerTheme().darkColorScheme),
       child: Scaffold(
