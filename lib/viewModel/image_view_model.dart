@@ -113,4 +113,18 @@ class ImageViewModel extends ChangeNotifier{
     }
   }
 
+  Future<bool> updateImageDocument(BuildContext context, Document document) async{
+    try{
+      _loading = true;
+      dbHelper.update(document);
+      loadDocuments();
+      _loading = false;
+      notifyListeners();
+      return true;
+    }catch(e){
+      Utils.showErrorMessage(context, e.toString());
+      return false;
+    }
+  }
+
 }

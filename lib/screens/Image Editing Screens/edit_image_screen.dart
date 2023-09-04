@@ -3,12 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_scanner/Theme/scanner_theme.dart';
+import 'package:material_scanner/utils/save_image_path.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:provider/provider.dart';
 import '../../utils/constants.dart';
 import '../../utils/utils.dart';
 import '../../model/document.dart';
 import '../../viewModel/edit_image_controller.dart';
 import 'dart:io';
+
+import '../../viewModel/image_view_model.dart';
 
 class EditImageScreen extends StatefulWidget {
   final Document document;
@@ -189,7 +193,12 @@ class _EditImageScreenState extends State<EditImageScreen> {
                     },
                     icon: const Icon(Icons.done))
                 //if not then show save button that handles the database activity of saving
-                : IconButton(onPressed: () {}, icon: const Icon(Icons.save)),
+                : IconButton(onPressed: () async {
+                  //TODO adjust the code in such a way that I don't have to recreate the image file to replace it
+                  // final uri = await ImageProperties.saveImageFromPath(imagePath)
+                  // widget.document.
+                  Provider.of<ImageViewModel>(context, listen: false).updateImageDocument(context, document)
+            }, icon: const Icon(Icons.save)),
           ],
         ),
         body: SafeArea(
