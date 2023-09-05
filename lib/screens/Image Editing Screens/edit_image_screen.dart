@@ -194,11 +194,15 @@ class _EditImageScreenState extends State<EditImageScreen> {
                     icon: const Icon(Icons.done))
                 //if not then show save button that handles the database activity of saving
                 : IconButton(onPressed: () async {
+                  final bytes = await editImageController.convertImageToUnsigned(currentImage!);
+                  final path = await ImageProperties.savePathFromImage(bytes);
+                  final uri = await ImageProperties.saveImageFromPath(path);
+                  widget.document.uri = uri;
                   //TODO adjust the code in such a way that I don't have to recreate the image file to replace it
-                  File tempFile = c
                   // final uri = await ImageProperties.saveImageFromPath(imagePath)
-                  // widget.document.
-                  // Provider.of<ImageViewModel>(context, listen: false).updateImageDocument(context, document)
+                  Provider.of<ImageViewModel>(context, listen: false).updateImageDocument(context, widget.document);
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Image saved successfully")));
             }, icon: const Icon(Icons.save)),
           ],
         ),

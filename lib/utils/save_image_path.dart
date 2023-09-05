@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -34,6 +35,18 @@ class ImageProperties{
     }catch(e){
       print(e.toString());
       return "Null";
+    }
+  }
+  static Future<String> savePathFromImage(Uint8List imageBytes) async {
+    try{
+      final appDirectory = await getApplicationDocumentsDirectory();
+      final fileName = "IMG_${DateTime.now().millisecondsSinceEpoch}";
+      final filePath = "${appDirectory.path}/$fileName";
+      await File(filePath).writeAsBytes(imageBytes);
+      return filePath;
+    }catch(e){
+      print(e.toString());
+      return "";
     }
   }
 }
