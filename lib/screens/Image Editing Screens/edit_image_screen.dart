@@ -195,9 +195,10 @@ class _EditImageScreenState extends State<EditImageScreen> {
                 //if not then show save button that handles the database activity of saving
                 : IconButton(onPressed: () async {
                   //TODO adjust the code in such a way that I don't have to recreate the image file to replace it
+                  File tempFile = c
                   // final uri = await ImageProperties.saveImageFromPath(imagePath)
                   // widget.document.
-                  Provider.of<ImageViewModel>(context, listen: false).updateImageDocument(context, document)
+                  // Provider.of<ImageViewModel>(context, listen: false).updateImageDocument(context, document)
             }, icon: const Icon(Icons.save)),
           ],
         ),
