@@ -55,7 +55,11 @@ class _ViewImageState extends State<ViewImage> {
             if(value == 0){
              final newDoc = await Navigator.push(context, MaterialPageRoute(builder: (_) => EditImageScreen(document: widget.document,)));
              if(newDoc!=null){
-               widget.document = newDoc;
+              print(newDoc);
+               setState(() {
+                widget.document = newDoc;
+                file = File(widget.document.uri);
+               });
              }
             }
             else if(value == 1){
