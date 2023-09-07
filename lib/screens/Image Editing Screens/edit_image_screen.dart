@@ -201,7 +201,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
                   //TODO adjust the code in such a way that I don't have to recreate the image file to replace it
                   // final uri = await ImageProperties.saveImageFromPath(imagePath)
                   Provider.of<ImageViewModel>(context, listen: false).updateImageDocument(context, widget.document);
-                  Navigator.pop(context);
+                  Navigator.of(context).pop(widget.document);
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Image saved successfully")));
             }, icon: const Icon(Icons.save)),
           ],

@@ -10,9 +10,9 @@ import '../utils/utils.dart';
 import '../viewModel/image_view_model.dart';
 
 class ViewImage extends StatefulWidget {
-  const ViewImage({super.key, required this.document});
+  ViewImage({super.key, required this.document});
 
-  final Document document;
+  late Document document;
   static const String id = "View_Image";
 
   @override
@@ -53,7 +53,10 @@ class _ViewImageState extends State<ViewImage> {
           type: BottomNavigationBarType.fixed,
           onTap: (value) async {
             if(value == 0){
-              Navigator.push(context, MaterialPageRoute(builder: (_) => EditImageScreen(document: widget.document,)));
+             final newDoc = await Navigator.push(context, MaterialPageRoute(builder: (_) => EditImageScreen(document: widget.document,)));
+             if(newDoc!=null){
+               widget.document = newDoc;
+             }
             }
             else if(value == 1){
               await Share.shareXFiles([XFile(file.path)]);
