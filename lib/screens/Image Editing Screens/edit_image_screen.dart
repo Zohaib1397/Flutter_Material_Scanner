@@ -89,7 +89,9 @@ class _EditImageScreenState extends State<EditImageScreen> {
                           content: "Are you sure to discard the changes?",
                           confirmText: "Discard",
                           onConfirm: () {
-                            editImageController.resetToggles();
+                            setState(() {
+                              editImageController.resetToggles();
+                            });
                           },
                         );
                       } else {
