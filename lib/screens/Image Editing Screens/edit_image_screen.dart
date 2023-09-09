@@ -281,7 +281,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
               setState(() {
                 editImageController.toggleMenuItem(1);
               });
-              image = await picker.pickImage(source: ImageSource.gallery);
+              // image = await picker.pickImage(source: ImageSource.gallery);
               CroppedFile? croppedFile = await ImageCropper().cropImage(
                 sourcePath: editImageController.file.path,
                 aspectRatioPresets: [
