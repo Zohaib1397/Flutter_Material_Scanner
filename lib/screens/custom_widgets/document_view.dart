@@ -63,6 +63,7 @@ class _DocumentViewState extends State<DocumentView> {
           if(value == "delete"){
             setState(() {
               Provider.of<ImageViewModel>(context,listen: false).deleteDocument(widget.document);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Document deleted successfully")));
             });
           }
         },

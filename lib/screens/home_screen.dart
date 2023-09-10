@@ -49,37 +49,48 @@ class _HomeScreenState extends State<HomeScreen> {
                       List<Widget> widgetTree = documentList
                           .map((element) => _buildDismissibleDocument(element))
                           .toList();
-                      return Column(
-                        mainAxisAlignment: imageController.isEmpty()
-                            ? MainAxisAlignment.center
-                            : MainAxisAlignment.start,
-                        children: [
-                          ...widgetTree,
-                          imageController.isEmpty()
-                              ? Container(
-                                  height: 400,
-                                  width: 400,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      // Image(
-                                      ListTile(
-                                        title: Image(
-                                          image:
-                                          AssetImage("assets/empty_list.png"),
-                                          height: 90,
-                                          width: 90,
+                      if (activeLayout == Layout.LIST) {
+                        ListView.builder(
+                            itemCount: widgetTree.length,
+                            itemBuilder: (BuildContext context, int index) {
+                            return _buildDismissibleDocument(documentList[index]);
+                        });
+                        return Column(
+                          children: [
+                            ...widgetTree,
+                            imageController.isEmpty()
+                                ? Container(
+                                    height: 400,
+                                    width: 400,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        // Image(
+                                        ListTile(
+                                          title: Image(
+                                            image: AssetImage(
+                                                "assets/empty_list.png"),
+                                            height: 90,
+                                            width: 90,
+                                          ),
+                                          subtitle: Text(
+                                            "List is Empty",
+                                            textAlign: TextAlign.center,
+                                          ),
                                         ),
-                                        subtitle:  Text("List is Empty",textAlign: TextAlign.center,),
-                                      ),
-
-
-                                    ],
-                                  ),
-                                )
-                              : Container(),
-                        ],
-                      );
+                                      ],
+                                    ),
+                                  )
+                                : Container(),
+                          ],
+                        );
+                      } else {
+                        return GridView.count(
+                          crossAxisCount: 2,
+                          children: [...widgetTree],
+                        );
+                      }
                     },
                   ),
                 ],
@@ -205,8 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
       indicatorColor: Theme.of(context).colorScheme.onPrimary,
       height: 46,
       indicatorBorder: Border.all(
-          color: Theme.of(context).colorScheme.surfaceVariant, width: 3.0
-      ),
+          color: Theme.of(context).colorScheme.surfaceVariant, width: 3.0),
       indicatorSize: const Size(46, double.infinity),
       current: activeLayout == Layout.GRID ? 0 : 1,
       values: const [0, 1],
@@ -257,11 +267,12 @@ class _HomeScreenState extends State<HomeScreen> {
       tooltip: "Scan Document",
       child: const Icon(Icons.camera_alt_outlined),
       onPressed: () async {
-        if(Platform.isIOS){
-          XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
+        if (Platform.isIOS) {
+          XFile? image =
+              await imagePicker.pickImage(source: ImageSource.gallery);
           Provider.of<ImageViewModel>(context, listen: false)
               .importFromCameraRoll(context, image!);
-        }else {
+        } else {
           Provider.of<ImageViewModel>(context, listen: false)
               .performDocumentScan(context);
         }
