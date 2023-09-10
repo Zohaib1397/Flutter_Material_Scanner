@@ -2,7 +2,9 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:material_scanner/screens/view_image.dart';
+import 'package:provider/provider.dart';
 import '../../model/document.dart';
+import '../../viewModel/image_view_model.dart';
 
 class DocumentView extends StatefulWidget {
   const DocumentView({super.key, required this.document});
@@ -55,13 +57,18 @@ class _DocumentViewState extends State<DocumentView> {
       ),
       trailing: PopupMenuButton<String>(
         padding: EdgeInsets.zero,
-        onSelected: (value) async {
-          if(value == 0){
 
+        onSelected: (value) async {
+          print(value);
+          if(value == "delete"){
+            setState(() {
+              Provider.of<ImageViewModel>(context,listen: false).deleteDocument(widget.document);
+            });
           }
         },
         itemBuilder: (context) => <PopupMenuItem<String>>[
           const PopupMenuItem(
+            value: "delete",
             padding: EdgeInsets.zero,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
