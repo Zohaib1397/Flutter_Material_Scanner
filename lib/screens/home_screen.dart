@@ -59,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             ...widgetTree,
                             imageController.isEmpty()
-                                ? Container(
+                                ? const SizedBox(
                                     height: 400,
                                     width: 400,
                                     child: Column(
