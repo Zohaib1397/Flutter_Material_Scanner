@@ -88,7 +88,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       } else {
                         return GridView.count(
                           crossAxisCount: 2,
-                          children: [...widgetTree],
+                          children: [
+
+                          ],
                         );
                       }
                     },
