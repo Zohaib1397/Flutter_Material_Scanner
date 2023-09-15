@@ -87,13 +87,30 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         );
                       } else {
-                        return GridView.builder(gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 8.0,
-                          mainAxisSpacing: 8.0,
-                        ), itemBuilder: (BuildContext context, int index){
-                            return Image.file(File(documentList[index].uri));
-                        });
+                        return Column(
+                          children: [
+                            Container(
+                              height: 400,
+                              child: GridView.builder(gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 8.0,
+                                mainAxisSpacing: 8.0,
+                              ), itemBuilder: (BuildContext context, int index){
+                                if (index < documentList.length) {
+                                  // Check if the index is within the bounds of the list
+                                  return Image.file(
+                                    File(documentList[index].uri),
+                                    width: 40,
+                                    height: 40,
+                                  );
+                                } else {
+                                  // Handle the case where the index is out of bounds
+                                  return SizedBox(); // Return an empty widget or handle it differently
+                                }
+                              }),
+                            ),
+                          ],
+                        );
                       }
                     },
                   ),
