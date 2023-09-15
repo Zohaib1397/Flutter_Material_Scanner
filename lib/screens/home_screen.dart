@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:io';
 import 'dart:io' show Platform;
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
@@ -86,12 +87,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         );
                       } else {
-                        return GridView.count(
+                        return GridView.builder(gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          children: [
-
-                          ],
-                        );
+                          crossAxisSpacing: 8.0,
+                          mainAxisSpacing: 8.0,
+                        ), itemBuilder: (BuildContext context, int index){
+                            return Image.file(File(documentList[index].uri));
+                        });
                       }
                     },
                   ),
