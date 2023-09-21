@@ -1,7 +1,7 @@
 import 'package:material_scanner/model/layout.dart';
 import 'package:flutter/material.dart';
 
-Layout activeLayout = Layout.LIST;
+Layout activeLayout = Layout.GRID;
 
 const kConstantBlackScreenIconTheme = IconThemeData(
   color: Colors.white,
