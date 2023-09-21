@@ -11,7 +11,8 @@ import '../model/document.dart';
 import '../model/layout.dart';
 import '../utils/constants.dart';
 import '../viewModel/image_view_model.dart';
-import 'custom_widgets/document_view.dart';
+import 'custom_widgets/grid_document_view.dart';
+import 'custom_widgets/list_document_view.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -92,22 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Container(
                               height: 400,
-                              child: GridView.builder(
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    crossAxisSpacing: 8.0,
-                                    mainAxisSpacing: 8.0,
-                                  ),
-                                  itemCount: documentList.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    return Image.file(
-                                      File(documentList[index].uri),
-                                      width: 40,
-                                      height: 40,
-                                    );
-                                  }),
+                              child: gridView(documentList: documentList),
                             ),
                           ],
                         );
@@ -318,5 +304,31 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     ];
+  }
+}
+
+class gridView extends StatelessWidget {
+  const gridView({
+    super.key,
+    required this.documentList,
+  });
+
+  final List<Document> documentList;
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      //testing
+        gridDelegate:
+            const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 8.0,
+          mainAxisSpacing: 8.0,
+        ),
+        itemCount: documentList.length,
+        itemBuilder:
+            (BuildContext context, int index) {
+          return GridDocumentView(document: documentList[index]);
+        });
   }
 }
